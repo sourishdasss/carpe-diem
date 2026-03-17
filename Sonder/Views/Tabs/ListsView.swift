@@ -236,22 +236,17 @@ struct AddCityPickerView: View {
                             Button {
                                 selectedCity = city
                             } label: {
-                                HStack(spacing: 12) {
-                                    Text(city.flag).font(.system(size: 26))
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(city.city)
-                                            .font(.georgiaBold(16))
-                                            .foregroundStyle(Color.sonderTextPrimary)
-                                        Text(city.country)
-                                            .font(.georgia(13))
-                                            .foregroundStyle(Color.sonderTextSecond)
-                                    }
-                                    Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundStyle(Color.sonderDivider)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(city.city)
+                                        .font(.georgiaBold(16))
+                                        .foregroundStyle(Color.sonderTextPrimary)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Text(city.country)
+                                        .font(.georgia(13))
+                                        .foregroundStyle(Color.sonderTextSecond)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
                                 }
-                                .padding(.vertical, 4)
+                                .padding(.vertical, 8)
                             }
                             .listRowBackground(Color.sonderSurface)
                             .listRowSeparatorTint(Color.sonderDivider)
