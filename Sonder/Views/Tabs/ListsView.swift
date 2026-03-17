@@ -1,4 +1,5 @@
 import SwiftUI
+import MapKit
 
 struct ListsView: View {
     @EnvironmentObject var store: AppStore
@@ -189,11 +190,16 @@ struct AddCityPickerView: View {
     @State private var searchText = ""
     @State private var manualCity = ""
     @State private var manualCountry = ""
+    @State private var isSearchingCities = false
+    @State private var citySearchResults: [CitySearchResult] = []
 
     private var availableCities: [CityData] {
         let ratedIds = Set(store.ratedCities.map { $0.cityData.id })
         let all = Attractions.allCities.filter { !ratedIds.contains($0.id) }
-        if searchText.isEmpty { return all }
+        if searchText.isEmpty || !citySearchResults.isEmpty {
+            // When using real city search, suggested list is independent.
+            return all
+        }
         return all.filter {
             $0.city.localizedCaseInsensitiveContains(searchText) ||
             $0.country.localizedCaseInsensitiveContains(searchText)
@@ -207,17 +213,18 @@ struct AddCityPickerView: View {
                 List {
                     Section("Any city in the world") {
                         VStack(alignment: .leading, spacing: 10) {
-                            TextField("City name", text: $manualCity)
-                                .textInputAutocapitalization(.words)
-                                .font(.georgia(15))
-                            TextField("Country (optional)", text: $manualCountry)
+                            TextField("Search for a city (e.g. Paris, Tokyo)", text: $manualCity)
                                 .textInputAutocapitalization(.words)
                                 .font(.georgia(15))
                             Button {
-                                let cityData = Attractions.templateCity(city: manualCity, country: manualCountry)
-                                selectedCity = cityData
+                                runCitySearch()
                             } label: {
-                                Text("Next: rate attractions")
+                                HStack(spacing: 8) {
+                                    if isSearchingCities {
+                                        ProgressView().scaleEffect(0.8)
+                                    }
+                                    Text(isSearchingCities ? "Searching…" : "Search cities")
+                                }
                                     .font(.georgiaBold(15))
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity)
@@ -229,6 +236,39 @@ struct AddCityPickerView: View {
                         }
                         .padding(.vertical, 4)
                         .listRowBackground(Color.sonderSurface)
+
+                        if !citySearchResults.isEmpty {
+                            ForEach(citySearchResults, id: \.id) { result in
+                                Button {
+                                    let cityData = Attractions.templateCity(city: result.city, country: result.country)
+                                    selectedCity = cityData
+                                } label: {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(result.city)
+                                            .font(.georgiaBold(16))
+                                            .foregroundStyle(Color.sonderTextPrimary)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                        Text(result.country)
+                                            .font(.georgia(13))
+                                            .foregroundStyle(Color.sonderTextSecond)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                    .padding(.vertical, 6)
+                                }
+                                .listRowBackground(Color.sonderSurface)
+                            }
+                        } else if !manualCity.trimmingCharacters(in: .whitespaces).isEmpty && !isSearchingCities {
+                            // Fallback: let user proceed with whatever they typed if search has no results
+                            Button {
+                                let cityData = Attractions.templateCity(city: manualCity, country: manualCountry)
+                                selectedCity = cityData
+                            } label: {
+                                Text("Use \"\(manualCity.trimmingCharacters(in: .whitespaces))\" as typed")
+                                    .font(.georgia(14))
+                                    .foregroundStyle(Color.sonderAccent)
+                            }
+                            .listRowBackground(Color.sonderSurface)
+                        }
                     }
 
                     Section("Suggested cities") {
@@ -275,7 +315,45 @@ struct AddCityPickerView: View {
                     manualCity = ""
                     manualCountry = ""
                     searchText = ""
+                    citySearchResults = []
                 }
+            }
+        }
+    }
+}
+
+// MARK: - City search result for MapKit-based lookup
+
+fileprivate struct CitySearchResult {
+    let id = UUID()
+    let city: String
+    let country: String
+}
+
+fileprivate extension AddCityPickerView {
+    func runCitySearch() {
+        let query = manualCity.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return }
+        isSearchingCities = true
+        citySearchResults = []
+        var request = MKLocalSearch.Request()
+        request.naturalLanguageQuery = query
+        MKLocalSearch(request: request).start { response, _ in
+            DispatchQueue.main.async {
+                isSearchingCities = false
+                guard let response = response else { return }
+                var seen = Set<String>()
+                let results: [CitySearchResult] = response.mapItems.compactMap { item in
+                    let p = item.placemark
+                    let city = p.locality ?? p.administrativeArea ?? p.name ?? ""
+                    let country = p.country ?? ""
+                    guard !city.isEmpty else { return nil }
+                    let key = "\(city)|\(country)"
+                    guard !seen.contains(key) else { return nil }
+                    seen.insert(key)
+                    return CitySearchResult(city: city, country: country)
+                }
+                self.citySearchResults = Array(results.prefix(20))
             }
         }
     }
