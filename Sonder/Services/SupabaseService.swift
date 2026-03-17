@@ -156,6 +156,40 @@ final class SupabaseService: ObservableObject {
             .insert(row)
             .execute()
     }
+
+    // MARK: - City attractions (user-added, per city)
+
+    func fetchCityAttractions(cityName: String, country: String) async throws -> [Attraction] {
+        guard let client = client else { return [] }
+        let rows: [CityAttractionRow] = try await client
+            .from("city_attractions")
+            .select()
+            .eq("city_name", value: cityName)
+            .eq("country", value: country)
+            .order("created_at", ascending: true)
+            .execute()
+            .value
+        return rows.compactMap { $0.toAttraction() }
+    }
+
+    func addCityAttraction(cityName: String, country: String, name: String, category: AttractionCategory) async throws -> Attraction {
+        guard let client = client else { throw NSError(domain: "Supabase", code: -1, userInfo: [NSLocalizedDescriptionKey: "Not configured"]) }
+        let uid = await currentUserId()
+        let row = CityAttractionRow(
+            id: UUID(),
+            cityName: cityName,
+            country: country,
+            name: name.trimmingCharacters(in: .whitespacesAndNewlines),
+            category: category.rawValue,
+            addedBy: uid,
+            createdAt: Date()
+        )
+        try await client
+            .from("city_attractions")
+            .insert(row)
+            .execute()
+        return row.toAttraction()!
+    }
 }
 
 // MARK: - DB row types (Codable for Supabase)
@@ -319,6 +353,31 @@ struct RecommendationDTO: Codable {
         self.matchReason = matchReason
         self.vibeTags = vibeTags
         self.matchScore = matchScore
+    }
+}
+
+struct CityAttractionRow: Codable {
+    let id: UUID
+    let cityName: String
+    let country: String
+    let name: String
+    let category: String
+    let addedBy: UUID?
+    let createdAt: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case cityName = "city_name"
+        case country
+        case name
+        case category
+        case addedBy = "added_by"
+        case createdAt = "created_at"
+    }
+
+    func toAttraction() -> Attraction? {
+        guard let cat = AttractionCategory(rawValue: category) else { return nil }
+        return Attraction(id: id, name: name, category: cat)
     }
 }
 

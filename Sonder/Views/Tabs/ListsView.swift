@@ -187,6 +187,8 @@ struct AddCityPickerView: View {
     @EnvironmentObject var store: AppStore
     @State private var selectedCity: CityData?
     @State private var searchText = ""
+    @State private var manualCity = ""
+    @State private var manualCountry = ""
 
     private var availableCities: [CityData] {
         let ratedIds = Set(store.ratedCities.map { $0.cityData.id })
@@ -202,33 +204,63 @@ struct AddCityPickerView: View {
         NavigationStack {
             ZStack {
                 Color.sonderBackground.ignoresSafeArea()
-                List(availableCities, id: \.id) { city in
-                    Button {
-                        selectedCity = city
-                    } label: {
-                        HStack(spacing: 12) {
-                            Text(city.flag).font(.system(size: 26))
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(city.city)
-                                    .font(.georgiaBold(16))
-                                    .foregroundStyle(Color.sonderTextPrimary)
-                                Text(city.country)
-                                    .font(.georgia(13))
-                                    .foregroundStyle(Color.sonderTextSecond)
+                List {
+                    Section("Any city in the world") {
+                        VStack(alignment: .leading, spacing: 10) {
+                            TextField("City name", text: $manualCity)
+                                .textInputAutocapitalization(.words)
+                                .font(.georgia(15))
+                            TextField("Country (optional)", text: $manualCountry)
+                                .textInputAutocapitalization(.words)
+                                .font(.georgia(15))
+                            Button {
+                                let cityData = Attractions.templateCity(city: manualCity, country: manualCountry)
+                                selectedCity = cityData
+                            } label: {
+                                Text("Next: rate attractions")
+                                    .font(.georgiaBold(15))
+                                    .foregroundStyle(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 10)
+                                    .background(manualCity.trimmingCharacters(in: .whitespaces).isEmpty ? Color.sonderDivider : Color.sonderAccent)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                             }
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(Color.sonderDivider)
+                            .disabled(manualCity.trimmingCharacters(in: .whitespaces).isEmpty)
                         }
                         .padding(.vertical, 4)
+                        .listRowBackground(Color.sonderSurface)
                     }
-                    .listRowBackground(Color.sonderSurface)
-                    .listRowSeparatorTint(Color.sonderDivider)
+
+                    Section("Suggested cities") {
+                        ForEach(availableCities, id: \.id) { city in
+                            Button {
+                                selectedCity = city
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Text(city.flag).font(.system(size: 26))
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(city.city)
+                                            .font(.georgiaBold(16))
+                                            .foregroundStyle(Color.sonderTextPrimary)
+                                        Text(city.country)
+                                            .font(.georgia(13))
+                                            .foregroundStyle(Color.sonderTextSecond)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundStyle(Color.sonderDivider)
+                                }
+                                .padding(.vertical, 4)
+                            }
+                            .listRowBackground(Color.sonderSurface)
+                            .listRowSeparatorTint(Color.sonderDivider)
+                        }
+                    }
                 }
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
-                .searchable(text: $searchText, prompt: "Search destinations")
+                .searchable(text: $searchText, prompt: "Search suggested cities")
             }
             .navigationTitle("Add City")
             .navigationBarTitleDisplayMode(.large)
@@ -245,6 +277,9 @@ struct AddCityPickerView: View {
                 AddCitySheet(cityData: city) {
                     selectedCity = nil
                     isPresented = false
+                    manualCity = ""
+                    manualCountry = ""
+                    searchText = ""
                 }
             }
         }

@@ -156,4 +156,40 @@ enum Attractions {
     static var allCities: [CityData] {
         [tokyo, paris, lisbon, newYork, bali, kyoto, marrakech, newOrleans]
     }
+
+    /// Build a generic template for any city in the world so the user can rate it,
+    /// even if we don't have hand-crafted attractions.
+    static func templateCity(city: String, country: String) -> CityData {
+        let trimmedCity = city.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedCountry = country.trimmingCharacters(in: .whitespacesAndNewlines)
+        let queryBase = trimmedCity.isEmpty ? "city" : trimmedCity
+        let encoded = queryBase.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "city"
+        let photoURL = "https://source.unsplash.com/featured/?\(encoded),travel"
+
+        let displayCity = trimmedCity.isEmpty ? "Unknown city" : trimmedCity
+        let displayCountry = trimmedCountry.isEmpty ? "Unknown" : trimmedCountry
+
+        let namePrefix = trimmedCity.isEmpty ? "City" : trimmedCity
+
+        let attractions: [Attraction] = [
+            Attraction(name: "\(namePrefix) historic center", category: .neighbourhood),
+            Attraction(name: "\(namePrefix) food & markets", category: .food),
+            Attraction(name: "\(namePrefix) museums & culture", category: .culture),
+            Attraction(name: "\(namePrefix) parks & nature", category: .nature),
+            Attraction(name: "\(namePrefix) viewpoints & skyline", category: .landmark),
+            Attraction(name: "\(namePrefix) neighbourhood walks", category: .neighbourhood),
+            Attraction(name: "\(namePrefix) experiences & nightlife", category: .experience),
+            Attraction(name: "Local everyday life in \(namePrefix)", category: .neighbourhood),
+            Attraction(name: "General Appeal", category: .general)
+        ]
+
+        return CityData(
+            city: displayCity,
+            country: displayCountry,
+            flag: "",
+            photoURL: photoURL,
+            attractions: attractions
+        )
+    }
 }
+
