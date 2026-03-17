@@ -116,7 +116,7 @@ final class AppStore: ObservableObject {
         ratings: [UUID: Int]
     ) async {
         guard let service = claudeService else {
-            errorMessage = "Claude API key not set"
+            errorMessage = "Gemini API key not set"
             return
         }
         isLoadingCityScore = true

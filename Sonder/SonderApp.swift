@@ -9,7 +9,7 @@ struct SonderApp: App {
             ContentRootView()
                 .environmentObject(store)
                 .onAppear {
-                    if let key = ProcessInfo.processInfo.environment["CLAUDE_API_KEY"] {
+                    if let key = ProcessInfo.processInfo.environment["GEMINI_API_KEY"] {
                         store.setAPIKey(key)
                     }
                     store.configureSupabase(url: Config.supabaseURL, anonKey: Config.supabaseAnonKey)

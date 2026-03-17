@@ -54,8 +54,8 @@ struct RecommendationItem: Codable {
 @MainActor
 final class ClaudeService {
     private let apiKey: String
-    private let baseURL = "https://api.anthropic.com/v1/messages"
-    private let model = "claude-sonnet-4-20250514"
+    private let baseURL = URL(string: "https://generativelanguage.googleapis.com/v1beta")!
+    private let modelPath = "models/gemini-2.0-flash" // or another Gemini model
 
     init(apiKey: String) {
         self.apiKey = apiKey
@@ -67,82 +67,103 @@ final class ClaudeService {
         ratings: [(attractionName: String, category: String, score: Int)]
     ) async throws -> CityScoreResponse {
         let lines = ratings.map { "\($0.category): \($0.attractionName) — \($0.score)/5 stars" }
-        let userMessage = """
+        let userText = """
         The user visited \(city), \(country) and rated the following attractions:
         \(lines.joined(separator: "\n"))
 
-        Return this exact JSON shape (no markdown, no preamble):
-        {"cumulative_score": 7.8, "score_breakdown": {"culture": 8.5, "food": 9.0, "neighbourhoods": 7.0, "landmarks": 6.5, "general_appeal": 8.0}, "summary": "2-3 sentence personalized summary.", "highlight": "One sentence highlight.", "would_recommend_if": "One sentence for who would love this city."}
+        Return JSON only with keys:
+        cumulative_score (0–10),
+        score_breakdown,
+        summary,
+        highlight,
+        would_recommend_if.
         """
 
         let systemPrompt = """
-        You are a travel analyst. Given a user's attraction ratings for a city, calculate a weighted cumulative score (scale 0-10) and write a personalized city summary. Respond in valid JSON only — no markdown, no preamble.
+        You are a travel analyst. Given a user's attraction ratings for a city, calculate a weighted cumulative score (0–10) and write a personalized city summary. Respond with JSON only, no markdown or commentary.
         """
 
-        let json = try await performRequest(system: systemPrompt, user: userMessage)
-        let data = try JSONSerialization.data(withJSONObject: json)
-        return try JSONDecoder().decode(CityScoreResponse.self, from: data)
+        let jsonData = try await callGemini(systemPrompt: systemPrompt, userText: userText)
+        return try JSONDecoder().decode(CityScoreResponse.self, from: jsonData)
     }
 
-    func generateTravelProfile(ratedCities: [(city: String, score: Double, topCategories: [String], lowCategories: [String])]) async throws -> TravelProfileResponse {
-        let lines = ratedCities.map { city in
-            "\(city.city): cumulative score \(city.score), highest rated categories: \(city.topCategories.joined(separator: ", ")), lowest rated: \(city.lowCategories.joined(separator: ", "))"
-        }
-        let userMessage = """
+    func generateTravelProfile(
+        ratedCities: [(city: String, score: Double, topCategories: [String], lowCategories: [String])]
+    ) async throws -> TravelProfileResponse {
+        let lines = ratedCities.map { cityInfo in
+            let topJoined = cityInfo.topCategories.joined(separator: ", ")
+            let lowJoined = cityInfo.lowCategories.joined(separator: ", ")
+            return "\(cityInfo.city): cumulative score \(cityInfo.score), highest rated categories: \(topJoined), lowest rated: \(lowJoined)"
+        }.joined(separator: "\n")
+
+        let userText = """
         The user has rated attractions across the following cities:
-        \(lines.joined(separator: "\n"))
+        \(lines)
 
-        Return this exact JSON shape (no markdown, no preamble):
-        {"personality_type": "The Slow Wanderer", "personality_description": "2 sentences.", "taste_traits": ["trait1", "trait2", "trait3", "trait4", "trait5"], "recommendations": [{"destination": "City, Country", "match_reason": "Why it matches.", "vibe_tags": ["tag1", "tag2", "tag3"], "match_score": 9.2}]}
-        Return exactly 5 recommendations, sorted by match_score descending.
+        Return JSON only with keys:
+        personality_type,
+        personality_description,
+        taste_traits (5 items),
+        recommendations (array of { destination, match_reason, vibe_tags, match_score } with exactly 5 items).
         """
 
         let systemPrompt = """
-        You are a travel taste expert. Based on a user's attraction ratings across multiple cities, infer their travel personality. Respond in valid JSON only.
+        You are a travel taste expert. Based on a user's attraction ratings across multiple cities, infer their travel personality. Respond with JSON only, no markdown or commentary.
         """
 
-        let json = try await performRequest(system: systemPrompt, user: userMessage)
-        let data = try JSONSerialization.data(withJSONObject: json)
-        return try JSONDecoder().decode(TravelProfileResponse.self, from: data)
+        let jsonData = try await callGemini(systemPrompt: systemPrompt, userText: userText)
+        return try JSONDecoder().decode(TravelProfileResponse.self, from: jsonData)
     }
 
-    private func performRequest(system: String, user: String) async throws -> [String: Any] {
-        var request = URLRequest(url: URL(string: baseURL)!)
+    // MARK: - Core Gemini call
+
+    private func callGemini(systemPrompt: String, userText: String) async throws -> Data {
+        var url = baseURL.appendingPathComponent("\(modelPath):generateContent")
+        url.append(queryItems: [URLQueryItem(name: "key", value: apiKey)])
+
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
-        request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
+        let combined = systemPrompt + "\n\n" + userText
         let body: [String: Any] = [
-            "model": model,
-            "max_tokens": 1024,
-            "system": system,
-            "messages": [
-                ["role": "user", "content": user]
+            "contents": [
+                [
+                    "role": "user",
+                    "parts": [
+                        ["text": combined]
+                    ]
+                ]
             ]
         ]
+
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
         let (data, response) = try await URLSession.shared.data(for: request)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw NSError(domain: "ClaudeService", code: -1, userInfo: [NSLocalizedDescriptionKey: String(data: data, encoding: .utf8) ?? "Unknown error"])
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw NSError(
+                domain: "GeminiService",
+                code: -1,
+                userInfo: [NSLocalizedDescriptionKey: String(data: data, encoding: .utf8) ?? "Gemini error"]
+            )
         }
 
-        let parsed = try JSONSerialization.jsonObject(with: data) as? [String: Any]
-        guard let content = parsed?["content"] as? [[String: Any]],
-              let first = content.first,
-              let text = first["text"] as? String else {
-            throw NSError(domain: "ClaudeService", code: -2, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+        let root = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let candidates = (root?["candidates"] as? [[String: Any]]) ?? []
+        let first = candidates.first
+        let content = first?["content"] as? [String: Any]
+        let parts = content?["parts"] as? [[String: Any]]
+        let text = parts?.first?["text"] as? String ?? ""
+
+        var cleaned = text
+            .replacingOccurrences(of: "```json", with: "")
+            .replacingOccurrences(of: "```", with: "")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if cleaned.isEmpty {
+            cleaned = "{}"
         }
 
-        // Strip markdown code blocks if present
-        var raw = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        if raw.hasPrefix("```") {
-            raw = raw.replacingOccurrences(of: "```json", with: "").replacingOccurrences(of: "```", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        guard let json = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any] else {
-            throw NSError(domain: "ClaudeService", code: -3, userInfo: [NSLocalizedDescriptionKey: "Could not parse JSON"])
-        }
-        return json
+        return Data(cleaned.utf8)
     }
 }
