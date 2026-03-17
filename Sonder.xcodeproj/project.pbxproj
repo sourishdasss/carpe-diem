@@ -26,6 +26,9 @@
 		CAE5CA735E4A44964BF71416 /* ClaudeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DE2C616F0461AB9C97DCFCC /* ClaudeService.swift */; };
 		D480A2F9B2C3F57504142418 /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19A20A16B6327BB7798A64D2 /* FeedView.swift */; };
 		F3C192BDDA506557410D8694 /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F16EF3C8881B09568DCB64 /* AppStore.swift */; };
+		A1B2C3D4E5F6A7B8C9D0E1F2 /* TravelMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1C2D3E4F5A6B7C8D9E0F1A2 /* TravelMapView.swift */; };
+		C3D4E5F6A7B8C9D0E1F2A3B4 /* FollowStatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E4F5A6B7C8D9E0F1A2B3C4 /* FollowStatsView.swift */; };
+		E5F6A7B8C9D0E1F2A3B4C5D6 /* FutureRecommendationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A6B7C8D9E0F1A2B3C4D5E6 /* FutureRecommendationsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +52,9 @@
 		D359A224503F6C2FE38B032C /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		E0E7A8F3ACE3CB4C1B5348B5 /* BottomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomTabBar.swift; sourceTree = "<group>"; };
 		E7E183E9A5963F37D1A688F6 /* ListsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListsView.swift; sourceTree = "<group>"; };
+		B1C2D3E4F5A6B7C8D9E0F1A2 /* TravelMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelMapView.swift; sourceTree = "<group>"; };
+		D3E4F5A6B7C8D9E0F1A2B3C4 /* FollowStatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowStatsView.swift; sourceTree = "<group>"; };
+		F5A6B7C8D9E0F1A2B3C4D5E6 /* FutureRecommendationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureRecommendationsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,6 +75,7 @@
 				19A20A16B6327BB7798A64D2 /* FeedView.swift */,
 				E7E183E9A5963F37D1A688F6 /* ListsView.swift */,
 				77B65F7084769ACFCE049E8B /* ProfileView.swift */,
+				B1C2D3E4F5A6B7C8D9E0F1A2 /* TravelMapView.swift */,
 			);
 			path = Tabs;
 			sourceTree = "<group>";
@@ -88,6 +95,8 @@
 				294624A55D6F0F5E588FE489 /* AttractionRaterView.swift */,
 				E0E7A8F3ACE3CB4C1B5348B5 /* BottomTabBar.swift */,
 				8992597B85FE41028537F72B /* CityCardView.swift */,
+				D3E4F5A6B7C8D9E0F1A2B3C4 /* FollowStatsView.swift */,
+				F5A6B7C8D9E0F1A2B3C4D5E6 /* FutureRecommendationsView.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -239,6 +248,9 @@
 				0B887AB4F7DD34343BE5289D /* SupabaseService.swift in Sources */,
 				6C9BABE1A355355B12BAB7B6 /* Theme.swift in Sources */,
 				2D71F03308519111CB4DB814 /* TravelProfile.swift in Sources */,
+				A1B2C3D4E5F6A7B8C9D0E1F2 /* TravelMapView.swift in Sources */,
+				C3D4E5F6A7B8C9D0E1F2A3B4 /* FollowStatsView.swift in Sources */,
+				E5F6A7B8C9D0E1F2A3B4C5D6 /* FutureRecommendationsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

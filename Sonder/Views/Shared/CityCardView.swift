@@ -5,60 +5,62 @@ struct CityCardView: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
+            // Photo
             AsyncImage(url: URL(string: city.cityData.photoURL)) { phase in
                 switch phase {
                 case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                case .failure:
-                    Color.night700
+                    image.resizable().aspectRatio(contentMode: .fill)
                 case .empty:
-                    Color.night700
-                        .overlay(ProgressView().tint(.white))
-                @unknown default:
-                    Color.night700
+                    Color.sonderDivider.overlay(ProgressView().tint(Color.sonderAccent))
+                default:
+                    Color.sonderDivider
                 }
             }
-            .frame(height: 160)
+            .frame(height: 170)
             .clipped()
 
+            // Gradient overlay
             LinearGradient(
-                colors: [.clear, .black.opacity(0.85)],
+                colors: [.clear, .black.opacity(0.80)],
                 startPoint: .top,
                 endPoint: .bottom
             )
 
+            // Content
             VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .firstTextBaseline) {
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(city.cityData.city)
-                        .font(.title2.weight(.semibold))
+                        .font(.georgiaBold(20))
                         .foregroundStyle(.white)
                     Text(city.cityData.flag)
-                        .font(.title3)
+                        .font(.system(size: 18))
                 }
-                HStack(spacing: 12) {
+
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Text(String(format: "%.1f", city.cumulativeScore))
-                        .font(.title.weight(.bold))
-                        .foregroundStyle(Color.accentAmber)
+                        .font(.georgiaBold(30))
+                        .foregroundStyle(Color.sonderAccent)
                     Text("/ 10")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.8))
-                    Text("•")
-                        .foregroundStyle(.white.opacity(0.6))
-                    Text("\(city.ratings.count) attractions")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.8))
+                        .font(.georgia(15))
+                        .foregroundStyle(.white.opacity(0.75))
+                    Text("·")
+                        .foregroundStyle(.white.opacity(0.5))
+                    Text("\(city.ratings.count) rated")
+                        .font(.georgia(13))
+                        .foregroundStyle(.white.opacity(0.75))
                 }
+
                 if let top = city.topAttractionName, !top.isEmpty {
-                    Text("Top: \(top)")
-                        .font(.caption)
+                    Label(top, systemImage: "star.fill")
+                        .font(.georgia(12))
                         .foregroundStyle(.white.opacity(0.7))
+                        .labelStyle(.titleAndIcon)
                 }
             }
-            .padding()
+            .padding(14)
         }
-        .frame(height: 160)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .frame(height: 170)
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .shadow(color: .black.opacity(0.10), radius: 10, x: 0, y: 4)
     }
 }

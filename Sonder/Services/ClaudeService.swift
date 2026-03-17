@@ -34,11 +34,20 @@ struct RecommendationItem: Codable {
     let destination: String
     let matchReason: String
     let vibeTags: [String]
+    var matchScore: Double
+
+    init(destination: String, matchReason: String, vibeTags: [String], matchScore: Double = 0) {
+        self.destination = destination
+        self.matchReason = matchReason
+        self.vibeTags = vibeTags
+        self.matchScore = matchScore
+    }
 
     enum CodingKeys: String, CodingKey {
         case destination
         case matchReason = "match_reason"
         case vibeTags = "vibe_tags"
+        case matchScore = "match_score"
     }
 }
 
@@ -84,8 +93,8 @@ final class ClaudeService {
         \(lines.joined(separator: "\n"))
 
         Return this exact JSON shape (no markdown, no preamble):
-        {"personality_type": "The Slow Wanderer", "personality_description": "2 sentences.", "taste_traits": ["trait1", "trait2", "trait3", "trait4", "trait5"], "recommendations": [{"destination": "City, Country", "match_reason": "Why it matches.", "vibe_tags": ["tag1", "tag2", "tag3"]}]}
-        Return exactly 5 recommendations.
+        {"personality_type": "The Slow Wanderer", "personality_description": "2 sentences.", "taste_traits": ["trait1", "trait2", "trait3", "trait4", "trait5"], "recommendations": [{"destination": "City, Country", "match_reason": "Why it matches.", "vibe_tags": ["tag1", "tag2", "tag3"], "match_score": 9.2}]}
+        Return exactly 5 recommendations, sorted by match_score descending.
         """
 
         let systemPrompt = """

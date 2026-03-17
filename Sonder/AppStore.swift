@@ -18,6 +18,7 @@ final class AppStore: ObservableObject {
 
     enum Tab: String, CaseIterable {
         case feed = "Feed"
+        case map = "Map"
         case lists = "Lists"
         case profile = "Profile"
     }
@@ -177,7 +178,8 @@ final class AppStore: ObservableObject {
                     DestinationRecommendation(
                         destination: r.destination,
                         matchReason: r.matchReason,
-                        vibeTags: r.vibeTags
+                        vibeTags: r.vibeTags,
+                        matchScore: r.matchScore
                     )
                 }
             )

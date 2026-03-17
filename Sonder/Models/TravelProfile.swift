@@ -19,4 +19,12 @@ struct DestinationRecommendation: Identifiable {
     let destination: String
     let matchReason: String
     let vibeTags: [String]
+    var matchScore: Double
+
+    init(destination: String, matchReason: String, vibeTags: [String], matchScore: Double = 0) {
+        self.destination = destination
+        self.matchReason = matchReason
+        self.vibeTags = vibeTags
+        self.matchScore = matchScore
+    }
 }

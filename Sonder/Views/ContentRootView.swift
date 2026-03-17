@@ -7,8 +7,9 @@ struct ContentRootView: View {
         VStack(spacing: 0) {
             Group {
                 switch store.selectedTab {
-                case .feed: FeedView()
-                case .lists: ListsView()
+                case .feed:    FeedView()
+                case .map:     TravelMapView()
+                case .lists:   ListsView()
                 case .profile: ProfileView()
                 }
             }
@@ -16,6 +17,6 @@ struct ContentRootView: View {
 
             BottomTabBar(selectedTab: $store.selectedTab)
         }
-        .background(Color.night900)
+        .background(Color.sonderBackground)
     }
 }

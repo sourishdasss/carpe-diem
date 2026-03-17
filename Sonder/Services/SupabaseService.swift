@@ -275,7 +275,8 @@ struct TravelProfileRow: Codable {
                 DestinationRecommendation(
                     destination: r.destination,
                     matchReason: r.matchReason,
-                    vibeTags: r.vibeTags
+                    vibeTags: r.vibeTags,
+                    matchScore: r.matchScore
                 )
             }
         )
@@ -291,7 +292,8 @@ struct TravelProfileRow: Codable {
                 RecommendationDTO(
                     destination: r.destination,
                     matchReason: r.matchReason,
-                    vibeTags: r.vibeTags
+                    vibeTags: r.vibeTags,
+                    matchScore: r.matchScore
                 )
             },
             updatedAt: nil
@@ -303,11 +305,20 @@ struct RecommendationDTO: Codable {
     let destination: String
     let matchReason: String
     let vibeTags: [String]
+    var matchScore: Double
 
     enum CodingKeys: String, CodingKey {
         case destination
         case matchReason = "match_reason"
         case vibeTags = "vibe_tags"
+        case matchScore = "match_score"
+    }
+
+    init(destination: String, matchReason: String, vibeTags: [String], matchScore: Double = 0) {
+        self.destination = destination
+        self.matchReason = matchReason
+        self.vibeTags = vibeTags
+        self.matchScore = matchScore
     }
 }
 
