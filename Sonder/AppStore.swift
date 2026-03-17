@@ -5,13 +5,16 @@ import SwiftUI
 final class AppStore: ObservableObject {
     @Published var ratedCities: [RatedCity] = []
     @Published var travelProfile: TravelProfile = .placeholder
+    @Published var feedItems: [FeedItem] = []
     @Published var selectedTab: Tab = .feed
     @Published var isLoadingProfile = false
     @Published var isLoadingCityScore = false
+    @Published var isLoadingFeed = false
     @Published var errorMessage: String?
 
     private var claudeService: ClaudeService?
     private let profileRefreshThreshold = 3
+    private let supabase = SupabaseService.shared
 
     enum Tab: String, CaseIterable {
         case feed = "Feed"
@@ -40,11 +43,70 @@ final class AppStore: ObservableObject {
         claudeService = ClaudeService(apiKey: key)
     }
 
+    func configureSupabase(url: String, anonKey: String) {
+        supabase.configure(url: url, anonKey: anonKey)
+    }
+
+    /// Load rated cities, travel profile, and feed from Supabase. Call on launch.
+    func loadFromSupabase() async {
+        guard supabase.isConfigured else { return }
+        await supabase.signInAnonymouslyIfNeeded()
+
+        do {
+            ratedCities = try await supabase.fetchRatedCities()
+            ratedCities.sort { $0.cumulativeScore > $1.cumulativeScore }
+            if let profile = try await supabase.fetchTravelProfile() {
+                travelProfile = profile
+            }
+            feedItems = try await supabase.fetchFeedActivities()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    func refreshFeed() async {
+        guard supabase.isConfigured else { return }
+        isLoadingFeed = true
+        defer { isLoadingFeed = false }
+        do {
+            feedItems = try await supabase.fetchFeedActivities()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     func addRatedCity(_ city: RatedCity) {
         ratedCities.append(city)
         ratedCities.sort { $0.cumulativeScore > $1.cumulativeScore }
-        if ratedCities.count >= profileRefreshThreshold {
-            Task { await refreshTravelProfile() }
+        Task {
+            do {
+                try await supabase.insertRatedCity(city)
+                await postFeedActivityForNewCity(city)
+                if ratedCities.count >= profileRefreshThreshold {
+                    await refreshTravelProfile()
+                }
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    private func postFeedActivityForNewCity(_ city: RatedCity) async {
+        let displayName = "You"
+        do {
+            try await supabase.postFeedActivity(
+                displayName: displayName,
+                activityType: "visited_city",
+                city: city.cityData.city,
+                country: city.cityData.country,
+                cityPhotoURL: city.cityData.photoURL,
+                score: city.cumulativeScore,
+                review: nil,
+                data: ["attraction_count": "\(city.ratings.count)"]
+            )
+            await refreshFeed()
+        } catch {
+            // Non-fatal
         }
     }
 
@@ -53,7 +115,7 @@ final class AppStore: ObservableObject {
         ratings: [UUID: Int]
     ) async {
         guard let service = claudeService else {
-            errorMessage = "API key not set"
+            errorMessage = "Claude API key not set"
             return
         }
         isLoadingCityScore = true
@@ -119,36 +181,9 @@ final class AppStore: ObservableObject {
                     )
                 }
             )
+            try await supabase.upsertTravelProfile(travelProfile)
         } catch {
             errorMessage = error.localizedDescription
         }
-    }
-
-    /// Demo: pre-seed 2 cities so Lists and Profile look populated
-    func seedDemoCities() {
-        guard ratedCities.isEmpty else { return }
-        let tokyo = Attractions.tokyo
-        let lisbon = Attractions.lisbon
-        ratedCities = [
-            RatedCity(
-                cityData: tokyo,
-                cumulativeScore: 9.1,
-                summary: "Tokyo blew you away — the mix of tradition and tech, neighbourhood walks, and food culture matched your taste perfectly.",
-                highlight: "Neighbourhood vibes and depachika food halls.",
-                wouldRecommendIf: "You love walkable cities, great food, and a balance of culture and buzz.",
-                ratings: [],
-                topAttractionName: "Yanaka Neighbourhood"
-            ),
-            RatedCity(
-                cityData: lisbon,
-                cumulativeScore: 8.4,
-                summary: "Lisbon's hills, trams, and tiled neighbourhoods gave you exactly the kind of character and views you look for.",
-                highlight: "Alfama and the miradouros.",
-                wouldRecommendIf: "You're into walkable cities with strong local flavour and viewpoints.",
-                ratings: [],
-                topAttractionName: "Alfama"
-            )
-        ]
-        selectedTab = .lists
     }
 }

@@ -9,10 +9,11 @@ struct SonderApp: App {
             ContentRootView()
                 .environmentObject(store)
                 .onAppear {
-                    if ProcessInfo.processInfo.environment["CLAUDE_API_KEY"] != nil {
-                        store.setAPIKey(ProcessInfo.processInfo.environment["CLAUDE_API_KEY"]!)
+                    if let key = ProcessInfo.processInfo.environment["CLAUDE_API_KEY"] {
+                        store.setAPIKey(key)
                     }
-                    store.seedDemoCities()
+                    store.configureSupabase(url: Config.supabaseURL, anonKey: Config.supabaseAnonKey)
+                    Task { await store.loadFromSupabase() }
                 }
         }
     }

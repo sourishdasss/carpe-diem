@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct FeedView: View {
-    private let items = MockFeed.items
+    @EnvironmentObject var store: AppStore
     @State private var filter: FeedFilter = .everyone
 
     enum FeedFilter: String, CaseIterable {
@@ -17,12 +17,24 @@ struct FeedView: View {
                 ScrollView {
                     LazyVStack(spacing: 16) {
                         filterBar
-                        ForEach(items) { item in
-                            FeedCardView(item: item)
+                        if store.isLoadingFeed {
+                            ProgressView()
+                                .tint(Color.accentAmber)
+                                .padding()
+                        } else if store.feedItems.isEmpty {
+                            Text("No activity yet. Add a city from Lists to see it here.")
+                                .font(.subheadline)
+                                .foregroundStyle(Color.slate400)
+                                .padding(.vertical, 32)
+                        } else {
+                            ForEach(store.feedItems) { item in
+                                FeedCardView(item: item)
+                            }
                         }
                     }
                     .padding()
                 }
+                .refreshable { await store.refreshFeed() }
             }
             .navigationTitle("Feed")
             .navigationBarTitleDisplayMode(.large)

@@ -1,64 +1,52 @@
 # Sonder — Travel that fits you
 
-iOS app (SwiftUI) where you rate **attractions** inside cities, get a cumulative city score, and a personal travel taste profile. Letterboxd meets Google Maps.
+iOS app (SwiftUI) where you rate **attractions** inside cities, get a cumulative city score, and a personal travel taste profile. Data is stored in **Supabase** (no sample data).
+
+## Supabase setup
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. In the SQL Editor, run the schema: copy and run the contents of **`supabase/schema.sql`**.
+3. In Project Settings → API, copy your **Project URL** and **anon public** key.
 
 ## Open in Xcode and run
 
-1. **Create a new iOS App project**
-   - Xcode → File → New → Project
-   - Choose **App**, Next
-   - Product Name: **Sonder**
-   - Interface: **SwiftUI**
-   - Language: **Swift**
-   - Minimum Deployments: **iOS 17.0**
-   - Create and save (e.g. in this repo root or in a subfolder)
+1. Open the project:  
+   `open Sonder.xcodeproj`  
+   (The project is generated from `project.yml`; you can run `xcodegen generate` after editing it.)
 
-2. **Replace default source with Sonder**
-   - Delete the default `ContentView.swift` (and any boilerplate) from the new target.
-   - In the Project Navigator, right‑click the app target’s group → **Add Files to "Sonder"…**
-   - Select the **`Sonder`** folder (the one containing `SonderApp.swift`, `AppStore.swift`, `Views/`, etc.).
-   - Check **Copy items if needed** and **Create groups**, and ensure your app target is checked.
-   - Click Add.
+2. **Environment variables** (Product → Scheme → Edit Scheme → Run → Arguments → Environment Variables):
+   - `CLAUDE_API_KEY` — your Anthropic API key (for city score and travel profile).
+   - `SUPABASE_URL` — your Supabase project URL (e.g. `https://xxxx.supabase.co`).
+   - `SUPABASE_ANON_KEY` — your Supabase anon/public key.
 
-3. **Set the app entry point**
-   - Ensure **`SonderApp.swift`** is in the target and contains `@main`.
-   - If Xcode created its own `*_App.swift` with `@main`, remove `@main` from that file or delete it and keep only `SonderApp.swift` as the entry.
+3. **Run** on an iOS 17+ simulator (⌘R).
 
-4. **Claude API key (for city score & profile)**
-   - In Xcode: Product → Scheme → Edit Scheme → Run → Arguments → Environment Variables, add:
-     - Name: `CLAUDE_API_KEY`
-     - Value: your Anthropic API key
-   - Or in `SonderApp.swift` `onAppear` you can temporarily set the key (do not commit real keys).
+The app uses **anonymous auth** so each device gets a user without sign-up. Rated cities, travel profile, and feed are stored in Supabase.
 
-5. **Run**
-   - Select the **iPhone 15 Pro** (or any iOS 17+) simulator.
-   - Build and run (⌘R).
+## Demo flow
 
-## Demo flow (from CLAUDE.md)
-
-1. Open app → **Feed** tab (mock social activity).
-2. **Lists** tab → 2 pre-seeded cities (Tokyo 9.1, Lisbon 8.4).
-3. Tap **+ Add City** → pick **Paris** → rate attractions → submit → Paris appears with AI score + summary.
-4. **Profile** tab → personality type and traits (after 3+ cities, profile is generated via Claude).
+1. **Feed** — Empty until you or others add cities (activities appear here).
+2. **Lists** — Tap **+ Add City** → pick a city → rate attractions → submit. City is saved to Supabase and appears with an AI-generated score.
+3. **Profile** — After 3+ cities, your travel personality is generated via Claude and saved to Supabase.
 
 ## Project layout
 
 ```
 Sonder/
-  SonderApp.swift       # @main
-  AppStore.swift        # Central state
-  Views/
-    ContentRootView.swift
-    Tabs/               # Feed, Lists, Profile
-    Shared/              # CityCard, AttractionRater, AddCitySheet, BottomTabBar
+  SonderApp.swift       # @main, configures Supabase + Claude
+  AppStore.swift        # State; loads/saves via SupabaseService
+  Views/                # Feed, Lists, Profile + shared components
   Models/               # City, TravelProfile
-  Data/                 # Attractions (seed cities), MockFeed
-  Services/             # ClaudeService
+  Data/                 # Attractions (static list), FeedItem types
+  Services/             # ClaudeService, SupabaseService
   Theme/                # Colors
+supabase/
+  schema.sql            # Tables + RLS (run in Supabase SQL Editor)
 ```
 
 ## Requirements
 
 - Xcode 15+
 - iOS 17+
-- Anthropic API key for live city score and travel profile generation
+- Supabase project (schema applied)
+- Anthropic API key (for city score and profile)
