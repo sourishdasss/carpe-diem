@@ -104,12 +104,31 @@ create policy "Users can update own travel_profiles" on public.travel_profiles f
 create policy "Anyone can read feed_activities" on public.feed_activities for select using (true);
 create policy "Users can insert own feed_activities" on public.feed_activities for insert with check (auth.uid() = user_id);
 
--- Create profile on first sign-in (optional trigger; or create from app)
+-- Create profile on first sign-in: use auth metadata first_name + last_name for display_name
 create or replace function public.handle_new_user()
 returns trigger as $$
+declare
+  f text;
+  l text;
+  d text;
 begin
-  insert into public.profiles (id, display_name)
-  values (new.id, coalesce(new.raw_user_meta_data->>'display_name', 'Traveler'))
+  f := trim(coalesce(new.raw_user_meta_data->>'first_name', ''));
+  l := trim(coalesce(new.raw_user_meta_data->>'last_name', ''));
+  if f <> '' and l <> '' then
+    d := f || ' ' || l;
+  elsif f <> '' then
+    d := f;
+  elsif l <> '' then
+    d := l;
+  else
+    d := trim(coalesce(new.raw_user_meta_data->>'display_name', ''));
+    if d = '' then
+      d := 'Traveler';
+    end if;
+  end if;
+
+  insert into public.profiles (id, display_name, first_name, last_name)
+  values (new.id, d, f, l)
   on conflict (id) do nothing;
   return new;
 end;

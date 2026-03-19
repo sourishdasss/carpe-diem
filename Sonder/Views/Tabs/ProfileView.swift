@@ -27,7 +27,7 @@ struct ProfileView: View {
                 }
             }
             .task {
-                if let name = try? await supabase.fetchDisplayName() {
+                if let name = try? await supabase.fetchResolvedDisplayName() {
                     if !name.isEmpty {
                         displayName = name
                     }

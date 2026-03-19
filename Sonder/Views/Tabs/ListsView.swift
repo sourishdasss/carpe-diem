@@ -186,82 +186,138 @@ struct ListsView: View {
 struct AddCityPickerView: View {
     @Binding var isPresented: Bool
     @EnvironmentObject var store: AppStore
+    @StateObject private var citySearch = CitySearchCompleterService()
     @State private var selectedCity: CityData?
     @State private var manualCity = ""
-    @State private var manualCountry = ""
-    @State private var isSearchingCities = false
-    @State private var citySearchResults: [CitySearchResult] = []
+    @State private var isSearchingFullQuery = false
+    @State private var isResolvingPick = false
+    @State private var fullSearchResults: [ResolvedCityPlace] = []
+
+    private var trimmedQuery: String {
+        manualCity.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var showUseAsTypedFallback: Bool {
+        !trimmedQuery.isEmpty
+            && !citySearch.completerIsLoading
+            && !isSearchingFullQuery
+            && citySearch.suggestions.isEmpty
+            && fullSearchResults.isEmpty
+    }
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.sonderBackground.ignoresSafeArea()
                 List {
-                    Section("Any city in the world") {
-                        VStack(alignment: .leading, spacing: 10) {
-                            TextField("Search for a city (e.g. Paris, Tokyo)", text: $manualCity)
-                                .textInputAutocapitalization(.words)
-                                .font(.georgia(15))
-                            Button {
-                                runCitySearch()
-                            } label: {
-                                HStack(spacing: 8) {
-                                    if isSearchingCities {
-                                        ProgressView().scaleEffect(0.8)
-                                    }
-                                    Text(isSearchingCities ? "Searching…" : "Search cities")
-                                }
-                                    .font(.georgiaBold(15))
-                                    .foregroundStyle(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 10)
-                                    .background(manualCity.trimmingCharacters(in: .whitespaces).isEmpty ? Color.sonderDivider : Color.sonderAccent)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                            }
-                            .disabled(manualCity.trimmingCharacters(in: .whitespaces).isEmpty)
+                    if citySearch.completerIsLoading && !trimmedQuery.isEmpty {
+                        HStack(spacing: 10) {
+                            ProgressView()
+                            Text("Searching…")
+                                .font(.georgia(14))
+                                .foregroundStyle(Color.sonderTextSecond)
                         }
-                        .padding(.vertical, 4)
                         .listRowBackground(Color.sonderSurface)
+                    }
 
-                        if !citySearchResults.isEmpty {
-                            ForEach(citySearchResults, id: \.id) { result in
+                    if !citySearch.suggestions.isEmpty {
+                        Section {
+                            ForEach(citySearch.suggestions.map(CityCompletionRow.init)) { row in
                                 Button {
-                                    let cityData = Attractions.templateCity(city: result.city, country: result.country)
-                                    selectedCity = cityData
+                                    selectCompletion(row.completion)
                                 } label: {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(result.city)
-                                            .font(.georgiaBold(16))
-                                            .foregroundStyle(Color.sonderTextPrimary)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                        Text(result.country)
-                                            .font(.georgia(13))
-                                            .foregroundStyle(Color.sonderTextSecond)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                    }
-                                    .padding(.vertical, 6)
+                                    citySuggestionLabel(row.completion)
                                 }
                                 .listRowBackground(Color.sonderSurface)
                             }
-                        } else if !manualCity.trimmingCharacters(in: .whitespaces).isEmpty && !isSearchingCities {
-                            // Fallback: let user proceed with whatever they typed if search has no results
+                        } header: {
+                            Text("Suggestions")
+                                .font(.georgia(13))
+                                .foregroundStyle(Color.sonderTextSecond)
+                                .textCase(nil)
+                        }
+                    }
+
+                    if isSearchingFullQuery {
+                        HStack(spacing: 10) {
+                            ProgressView()
+                            Text("Looking up places…")
+                                .font(.georgia(14))
+                                .foregroundStyle(Color.sonderTextSecond)
+                        }
+                        .listRowBackground(Color.sonderSurface)
+                    }
+
+                    if !fullSearchResults.isEmpty {
+                        Section {
+                            ForEach(fullSearchResults, id: \.self) { place in
+                                Button {
+                                    selectedCity = Attractions.templateCity(city: place.city, country: place.country)
+                                } label: {
+                                    cityResultLabel(city: place.city, country: place.country)
+                                }
+                                .listRowBackground(Color.sonderSurface)
+                            }
+                        } header: {
+                            Text("Results")
+                                .font(.georgia(13))
+                                .foregroundStyle(Color.sonderTextSecond)
+                                .textCase(nil)
+                        }
+                    }
+
+                    if showUseAsTypedFallback {
+                        Section {
                             Button {
-                                let cityData = Attractions.templateCity(city: manualCity, country: manualCountry)
-                                selectedCity = cityData
+                                selectedCity = Attractions.templateCity(city: trimmedQuery, country: "")
                             } label: {
-                                Text("Use \"\(manualCity.trimmingCharacters(in: .whitespaces))\" as typed")
+                                Text("Use “\(trimmedQuery)”")
                                     .font(.georgia(14))
                                     .foregroundStyle(Color.sonderAccent)
                             }
                             .listRowBackground(Color.sonderSurface)
+                        } header: {
+                            Text("No matches")
+                                .font(.georgia(13))
+                                .foregroundStyle(Color.sonderTextSecond)
+                                .textCase(nil)
+                        }
+                    }
+
+                    if trimmedQuery.isEmpty {
+                        Section {
+                            Text("Start typing a city or town — suggestions appear as you type, like Apple Maps. Tap Search on the keyboard for a full place lookup.")
+                                .font(.georgia(14))
+                                .foregroundStyle(Color.sonderTextSecond)
+                                .listRowBackground(Color.sonderSurface)
                         }
                     }
                 }
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
+
+                if isResolvingPick {
+                    Color.black.opacity(0.12)
+                        .ignoresSafeArea()
+                    ProgressView()
+                        .scaleEffect(1.15)
+                }
             }
             .navigationTitle("Add City")
             .navigationBarTitleDisplayMode(.large)
+            .searchable(
+                text: $manualCity,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Search cities or towns"
+            )
+            .textInputAutocapitalization(.words)
+            .submitLabel(.search)
+            .onChange(of: manualCity) { _, new in
+                citySearch.updateQueryFragment(new)
+            }
+            .onSubmit(of: .search) {
+                runFullTextSearch()
+            }
             .toolbarBackground(Color.sonderBackground, for: .navigationBar)
             .toolbarColorScheme(.light, for: .navigationBar)
             .toolbar {
@@ -271,52 +327,93 @@ struct AddCityPickerView: View {
                         .foregroundStyle(Color.sonderAccent)
                 }
             }
-            .sheet(item: $selectedCity) { city in
+            .sheet(item: $selectedCity, onDismiss: {
+                citySearch.reset()
+                manualCity = ""
+                fullSearchResults = []
+            }) { city in
                 AddCitySheet(cityData: city) {
                     selectedCity = nil
                     isPresented = false
                     manualCity = ""
-                    manualCountry = ""
-                    citySearchResults = []
+                    fullSearchResults = []
+                    citySearch.reset()
                 }
             }
         }
     }
-}
 
-// MARK: - City search result for MapKit-based lookup
-
-fileprivate struct CitySearchResult {
-    let id = UUID()
-    let city: String
-    let country: String
-}
-
-fileprivate extension AddCityPickerView {
-    func runCitySearch() {
-        let query = manualCity.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !query.isEmpty else { return }
-        isSearchingCities = true
-        citySearchResults = []
-        var request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = query
-        MKLocalSearch(request: request).start { response, _ in
-            DispatchQueue.main.async {
-                isSearchingCities = false
-                guard let response = response else { return }
-                var seen = Set<String>()
-                let results: [CitySearchResult] = response.mapItems.compactMap { item in
-                    let p = item.placemark
-                    let city = p.locality ?? p.administrativeArea ?? p.name ?? ""
-                    let country = p.country ?? ""
-                    guard !city.isEmpty else { return nil }
-                    let key = "\(city)|\(country)"
-                    guard !seen.contains(key) else { return nil }
-                    seen.insert(key)
-                    return CitySearchResult(city: city, country: country)
+    private func citySuggestionLabel(_ completion: MKLocalSearchCompletion) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: "mappin.and.ellipse")
+                .font(.body)
+                .foregroundStyle(Color.sonderTextSecond)
+                .frame(width: 28, alignment: .center)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(completion.title)
+                    .font(.georgiaBold(16))
+                    .foregroundStyle(Color.sonderTextPrimary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                if !completion.subtitle.isEmpty {
+                    Text(completion.subtitle)
+                        .font(.georgia(13))
+                        .foregroundStyle(Color.sonderTextSecond)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                self.citySearchResults = Array(results.prefix(20))
             }
         }
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(completion.title), \(completion.subtitle)")
+    }
+
+    private func cityResultLabel(city: String, country: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(city)
+                .font(.georgiaBold(16))
+                .foregroundStyle(Color.sonderTextPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if !country.isEmpty {
+                Text(country)
+                    .font(.georgia(13))
+                    .foregroundStyle(Color.sonderTextSecond)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .padding(.vertical, 6)
+        .contentShape(Rectangle())
+    }
+
+    private func selectCompletion(_ completion: MKLocalSearchCompletion) {
+        isResolvingPick = true
+        CitySearchCompleterService.resolveCompletion(completion) { place in
+            isResolvingPick = false
+            guard let place else { return }
+            selectedCity = Attractions.templateCity(city: place.city, country: place.country)
+        }
+    }
+
+    private func runFullTextSearch() {
+        let q = trimmedQuery
+        guard !q.isEmpty else { return }
+        isSearchingFullQuery = true
+        fullSearchResults = []
+        CitySearchCompleterService.searchPlaces(query: q) { places in
+            isSearchingFullQuery = false
+            fullSearchResults = places
+        }
+    }
+}
+
+// MARK: - Stable rows for MKLocalSearchCompletion
+
+private struct CityCompletionRow: Identifiable {
+    let id: String
+    let completion: MKLocalSearchCompletion
+
+    init(_ completion: MKLocalSearchCompletion) {
+        self.completion = completion
+        self.id = "\(completion.title)|\(completion.subtitle)"
     }
 }

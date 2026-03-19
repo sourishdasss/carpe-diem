@@ -27,10 +27,21 @@ final class SupabaseService: ObservableObject {
     }
 
     /// Sign up with email/password.
+    /// Sends `first_name` / `last_name` as auth user metadata so `handle_new_user` can populate `profiles`
+    /// even when email confirmation means there is no session yet (client upsert won't run).
     /// Note: if your Supabase project requires email confirmation, the user may need to confirm first.
-    func signUp(email: String, password: String) async throws {
+    func signUp(email: String, password: String, firstName: String = "", lastName: String = "") async throws {
         guard let client else { throw NSError(domain: "Supabase", code: -1, userInfo: [NSLocalizedDescriptionKey: "Not configured"]) }
-        _ = try await client.auth.signUp(email: email, password: password)
+        let f = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let l = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let data: [String: AnyJSON]? = {
+            if f.isEmpty && l.isEmpty { return nil }
+            var m: [String: AnyJSON] = [:]
+            if !f.isEmpty { m["first_name"] = .string(f) }
+            if !l.isEmpty { m["last_name"] = .string(l) }
+            return m
+        }()
+        _ = try await client.auth.signUp(email: email, password: password, data: data)
     }
 
     /// Sign in with email/password.
@@ -73,6 +84,24 @@ final class SupabaseService: ObservableObject {
     }
 
     // MARK: - Profile
+
+    /// Writes `first_name` / `last_name` from `auth.users.raw_user_meta_data` into `public.profiles`
+    /// (fixes rows that still say "Traveler" until the DB trigger is updated, or old accounts).
+    func syncProfileNamesFromAuthMetadata() async throws {
+        guard let client else { return }
+        let session = try await client.auth.session
+        let meta = session.user.userMetadata
+        let f = metadataString(meta, key: "first_name")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let l = metadataString(meta, key: "last_name")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard !f.isEmpty || !l.isEmpty else { return }
+        try await upsertProfile(firstName: f, lastName: l)
+    }
+
+    private func metadataString(_ meta: [String: AnyJSON], key: String) -> String? {
+        guard let v = meta[key] else { return nil }
+        if case .string(let s) = v { return s }
+        return nil
+    }
 
     /// Saves `first_name`, `last_name`, and a combined `display_name` on `profiles`.
     func upsertProfile(firstName: String, lastName: String) async throws {
@@ -150,6 +179,27 @@ final class SupabaseService: ObservableObject {
             return last
         }
         return row.displayName
+    }
+
+    /// Name shown in Profile: prefers DB `first_name` + `last_name`, then auth metadata (if DB still "Traveler").
+    func fetchResolvedDisplayName() async throws -> String? {
+        guard let client else { return nil }
+        guard await currentUserId() != nil else { return nil }
+
+        let fromRow = try await fetchDisplayName()
+        if let fromRow, !fromRow.isEmpty, fromRow != "Traveler" {
+            return fromRow
+        }
+
+        let session = try await client.auth.session
+        let meta = session.user.userMetadata
+        let f = metadataString(meta, key: "first_name")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let l = metadataString(meta, key: "last_name")?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if !f.isEmpty && !l.isEmpty { return "\(f) \(l)" }
+        if !f.isEmpty { return f }
+        if !l.isEmpty { return l }
+
+        return fromRow
     }
 
     // MARK: - Rated cities

@@ -11,6 +11,9 @@ final class AuthStore: ObservableObject {
 
     func refresh() async {
         isSignedIn = await supabase.isSignedIn()
+        if isSignedIn {
+            try? await supabase.syncProfileNamesFromAuthMetadata()
+        }
     }
 
     func signUp(firstName: String, lastName: String, email: String, password: String) async {
@@ -18,10 +21,11 @@ final class AuthStore: ObservableObject {
         errorMessage = nil
         defer { isLoading = false }
         do {
-            try await supabase.signUp(email: email, password: password)
+            try await supabase.signUp(email: email, password: password, firstName: firstName, lastName: lastName)
             isSignedIn = await supabase.isSignedIn()
             if isSignedIn {
                 do {
+                    try await supabase.syncProfileNamesFromAuthMetadata()
                     try await supabase.upsertProfile(firstName: firstName, lastName: lastName)
                 } catch {
                     // Account exists but profile row failed (often schema/RLS mismatch).
@@ -40,6 +44,9 @@ final class AuthStore: ObservableObject {
         do {
             try await supabase.signIn(email: email, password: password)
             isSignedIn = await supabase.isSignedIn()
+            if isSignedIn {
+                try? await supabase.syncProfileNamesFromAuthMetadata()
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
