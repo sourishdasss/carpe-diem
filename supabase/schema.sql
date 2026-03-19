@@ -4,12 +4,21 @@
 -- Enable UUID extension if not already
 create extension if not exists "uuid-ossp";
 
--- Profiles: display name for feed (optional; can use auth.users later)
+-- Profiles: display name for feed (required by app + handle_new_user trigger)
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  display_name text default 'Traveler',
+  display_name text not null default 'Traveler',
+  first_name text default '',
+  last_name text default '',
+  created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
+
+-- If `profiles` already existed, ensure all columns the app expects are present.
+alter table public.profiles add column if not exists display_name text default 'Traveler';
+alter table public.profiles add column if not exists first_name text default '';
+alter table public.profiles add column if not exists last_name text default '';
+alter table public.profiles add column if not exists created_at timestamptz default now();
 
 -- Rated cities: one row per user per city
 create table if not exists public.rated_cities (

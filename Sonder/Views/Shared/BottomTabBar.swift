@@ -4,8 +4,7 @@ struct BottomTabBar: View {
     @Binding var selectedTab: AppStore.Tab
 
     private let tabs: [(AppStore.Tab, String, String)] = [
-        (.feed,    "square.stack.fill",   "Feed"),
-        (.map,     "map.fill",            "Map"),
+        (.map,     "mappin.and.ellipse",   "Places"),
         (.lists,   "list.star",           "Lists"),
         (.profile, "person.fill",         "Profile")
     ]

@@ -187,24 +187,10 @@ struct AddCityPickerView: View {
     @Binding var isPresented: Bool
     @EnvironmentObject var store: AppStore
     @State private var selectedCity: CityData?
-    @State private var searchText = ""
     @State private var manualCity = ""
     @State private var manualCountry = ""
     @State private var isSearchingCities = false
     @State private var citySearchResults: [CitySearchResult] = []
-
-    private var availableCities: [CityData] {
-        let ratedIds = Set(store.ratedCities.map { $0.cityData.id })
-        let all = Attractions.allCities.filter { !ratedIds.contains($0.id) }
-        if searchText.isEmpty || !citySearchResults.isEmpty {
-            // When using real city search, suggested list is independent.
-            return all
-        }
-        return all.filter {
-            $0.city.localizedCaseInsensitiveContains(searchText) ||
-            $0.country.localizedCaseInsensitiveContains(searchText)
-        }
-    }
 
     var body: some View {
         NavigationStack {
@@ -270,32 +256,9 @@ struct AddCityPickerView: View {
                             .listRowBackground(Color.sonderSurface)
                         }
                     }
-
-                    Section("Suggested cities") {
-                        ForEach(availableCities, id: \.id) { city in
-                            Button {
-                                selectedCity = city
-                            } label: {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(city.city)
-                                        .font(.georgiaBold(16))
-                                        .foregroundStyle(Color.sonderTextPrimary)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                    Text(city.country)
-                                        .font(.georgia(13))
-                                        .foregroundStyle(Color.sonderTextSecond)
-                                        .frame(maxWidth: .infinity, alignment: .leading)
-                                }
-                                .padding(.vertical, 8)
-                            }
-                            .listRowBackground(Color.sonderSurface)
-                            .listRowSeparatorTint(Color.sonderDivider)
-                        }
-                    }
                 }
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
-                .searchable(text: $searchText, prompt: "Search suggested cities")
             }
             .navigationTitle("Add City")
             .navigationBarTitleDisplayMode(.large)
@@ -314,7 +277,6 @@ struct AddCityPickerView: View {
                     isPresented = false
                     manualCity = ""
                     manualCountry = ""
-                    searchText = ""
                     citySearchResults = []
                 }
             }

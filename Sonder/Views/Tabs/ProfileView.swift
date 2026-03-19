@@ -2,6 +2,9 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var store: AppStore
+    @EnvironmentObject var auth: AuthStore
+    @State private var displayName: String = "Sonder Traveller"
+    private let supabase = SupabaseService.shared
 
     var body: some View {
         NavigationStack {
@@ -23,10 +26,29 @@ struct ProfileView: View {
                     .padding(.bottom, 32)
                 }
             }
+            .task {
+                if let name = try? await supabase.fetchDisplayName() {
+                    if !name.isEmpty {
+                        displayName = name
+                    }
+                }
+            }
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.large)
             .toolbarBackground(Color.sonderBackground, for: .navigationBar)
             .toolbarColorScheme(.light, for: .navigationBar)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        Task {
+                            await auth.signOut()
+                            store.resetForSignedOut()
+                        }
+                    } label: {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                    }
+                }
+            }
         }
     }
 
@@ -45,7 +67,7 @@ struct ProfileView: View {
             .overlay(Circle().stroke(Color.sonderAccent, lineWidth: 2))
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Sonder Traveller")
+                Text(displayName)
                     .font(.georgiaBold(20))
                     .foregroundStyle(Color.sonderTextPrimary)
                 Text("Travel that fits you.")

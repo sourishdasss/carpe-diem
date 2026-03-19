@@ -1,27 +1,24 @@
 import SwiftUI
 import MapKit
-
-// MARK: - City Coordinate Lookup
-
-private let cityCoordinates: [String: CLLocationCoordinate2D] = [
-    "Tokyo":       CLLocationCoordinate2D(latitude:  35.6762, longitude: 139.6503),
-    "Paris":       CLLocationCoordinate2D(latitude:  48.8566, longitude:   2.3522),
-    "Lisbon":      CLLocationCoordinate2D(latitude:  38.7169, longitude:  -9.1395),
-    "New York":    CLLocationCoordinate2D(latitude:  40.7128, longitude: -74.0060),
-    "Bali":        CLLocationCoordinate2D(latitude:  -8.3405, longitude: 115.0920),
-    "Kyoto":       CLLocationCoordinate2D(latitude:  35.0116, longitude: 135.7681),
-    "Marrakech":   CLLocationCoordinate2D(latitude:  31.6295, longitude:  -7.9811),
-    "New Orleans": CLLocationCoordinate2D(latitude:  29.9511, longitude: -90.0715),
-]
+import CoreLocation
 
 // MARK: - Map Pin Model
 
 struct CityMapPin: Identifiable {
-    let id = UUID()
+    let id: String
     let city: RatedCity
+    let coordinate: CLLocationCoordinate2D
+}
 
-    var coordinate: CLLocationCoordinate2D? {
-        cityCoordinates[city.cityData.city]
+// MARK: - World map default
+
+private extension MapCameraPosition {
+    /// Wide view so Places opens on a world-scale map (pins still visible; user can zoom).
+    static var sonderWorld: MapCameraPosition {
+        .region(MKCoordinateRegion(
+            center: CLLocationCoordinate2D(latitude: 20, longitude: 10),
+            span: MKCoordinateSpan(latitudeDelta: 120, longitudeDelta: 120)
+        ))
     }
 }
 
@@ -29,16 +26,13 @@ struct CityMapPin: Identifiable {
 
 struct TravelMapView: View {
     @EnvironmentObject var store: AppStore
-    @State private var selectedPin: CityMapPin? = nil
+    @State private var selectedPin: CityMapPin?
     @State private var showAddCity = false
-    @State private var cameraPosition: MapCameraPosition = .automatic
+    @State private var cameraPosition: MapCameraPosition = .sonderWorld
 
-    private var pins: [CityMapPin] {
-        store.ratedCities.compactMap { city in
-            let pin = CityMapPin(city: city)
-            return pin.coordinate != nil ? pin : nil
-        }
-    }
+    @State private var pins: [CityMapPin] = []
+    @State private var coordinateCache: [String: CLLocationCoordinate2D] = [:]
+    @State private var geocodeTask: Task<Void, Never>?
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -54,18 +48,12 @@ struct TravelMapView: View {
             AddCityPickerView(isPresented: $showAddCity)
         }
         .onAppear {
-            if !pins.isEmpty {
-                cameraPosition = .automatic
-            } else {
-                // Default world view
-                cameraPosition = .region(MKCoordinateRegion(
-                    center: CLLocationCoordinate2D(latitude: 20, longitude: 10),
-                    span: MKCoordinateSpan(latitudeDelta: 100, longitudeDelta: 100)
-                ))
-            }
+            // Tab switch recreates this view — always start from a world-scale map.
+            cameraPosition = .sonderWorld
+            updatePinsFromRatedCities()
         }
         .onChange(of: store.ratedCities.count) { _, _ in
-            withAnimation { cameraPosition = .automatic }
+            updatePinsFromRatedCities()
         }
     }
 
@@ -74,15 +62,13 @@ struct TravelMapView: View {
     private var mapLayer: some View {
         Map(position: $cameraPosition) {
             ForEach(pins) { pin in
-                if let coord = pin.coordinate {
-                    Annotation(
-                        pin.city.cityData.city,
-                        coordinate: coord,
-                        anchor: .bottom
-                    ) {
-                        CityPinView(pin: pin)
-                            .onTapGesture { selectedPin = pin }
-                    }
+                Annotation(
+                    pin.city.cityData.city,
+                    coordinate: pin.coordinate,
+                    anchor: .bottom
+                ) {
+                    CityPinView(pin: pin)
+                        .onTapGesture { selectedPin = pin }
                 }
             }
         }
@@ -132,6 +118,62 @@ struct TravelMapView: View {
 
     private var uniqueCountries: Int {
         Set(store.ratedCities.map { $0.cityData.country }).count
+    }
+
+    // MARK: - Geocoding
+
+    private func cityKey(_ city: RatedCity) -> String {
+        "\(city.cityData.city)|\(city.cityData.country)"
+    }
+
+    private func updatePinsFromRatedCities() {
+        geocodeTask?.cancel()
+
+        geocodeTask = Task {
+            var nextPins: [CityMapPin] = []
+
+            // Geocode each city; keep it simple for MVP.
+            for city in store.ratedCities {
+                if Task.isCancelled { return }
+
+                let key = cityKey(city)
+                if let cached = coordinateCache[key] {
+                    nextPins.append(CityMapPin(id: key, city: city, coordinate: cached))
+                    continue
+                }
+
+                let coordinate = await geocode(city: city)
+                if let coordinate {
+                    coordinateCache[key] = coordinate
+                    nextPins.append(CityMapPin(id: key, city: city, coordinate: coordinate))
+                }
+            }
+
+            await MainActor.run {
+                pins = nextPins
+                // Do not use `.automatic` here — it zooms to fit pins. Keep world default until the user zooms.
+            }
+        }
+    }
+
+    private func geocode(city: RatedCity) async -> CLLocationCoordinate2D? {
+        let cityName = city.cityData.city.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rawCountryName = city.cityData.country.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cityName.isEmpty else { return nil }
+
+        let countryName: String = rawCountryName.lowercased() == "unknown" ? "" : rawCountryName
+        let query = [cityName, countryName].filter { !$0.isEmpty }.joined(separator: ", ")
+        let geocoder = CLGeocoder()
+
+        return await withCheckedContinuation { continuation in
+            geocoder.geocodeAddressString(query) { placemarks, error in
+                if let loc = placemarks?.first?.location {
+                    continuation.resume(returning: loc.coordinate)
+                } else {
+                    continuation.resume(returning: nil)
+                }
+            }
+        }
     }
 }
 

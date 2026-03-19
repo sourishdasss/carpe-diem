@@ -1,7 +1,8 @@
 import Foundation
 import Supabase
 
-/// Supabase client and API. Configure with URL and anon key; uses anonymous auth for user_id.
+/// Supabase client and API.
+/// Configure with URL and anon key. The app uses authenticated (email/password) sessions.
 @MainActor
 final class SupabaseService: ObservableObject {
     static let shared = SupabaseService()
@@ -16,10 +17,33 @@ final class SupabaseService: ObservableObject {
         supabaseURL = u
         supabaseKey = anonKey
         client = SupabaseClient(supabaseURL: u, supabaseKey: anonKey)
-        Task { await signInAnonymouslyIfNeeded() }
     }
 
     var isConfigured: Bool { client != nil }
+
+    /// Returns true if there's a valid authenticated session.
+    func isSignedIn() async -> Bool {
+        await currentUserId() != nil
+    }
+
+    /// Sign up with email/password.
+    /// Note: if your Supabase project requires email confirmation, the user may need to confirm first.
+    func signUp(email: String, password: String) async throws {
+        guard let client else { throw NSError(domain: "Supabase", code: -1, userInfo: [NSLocalizedDescriptionKey: "Not configured"]) }
+        _ = try await client.auth.signUp(email: email, password: password)
+    }
+
+    /// Sign in with email/password.
+    func signIn(email: String, password: String) async throws {
+        guard let client else { throw NSError(domain: "Supabase", code: -1, userInfo: [NSLocalizedDescriptionKey: "Not configured"]) }
+        _ = try await client.auth.signIn(email: email, password: password)
+    }
+
+    /// Sign out.
+    func signOut() async throws {
+        guard let client else { return }
+        try await client.auth.signOut()
+    }
 
     /// Sign in anonymously so we have a user_id for RLS (no sign-up form).
     func signInAnonymouslyIfNeeded() async {
@@ -46,6 +70,86 @@ final class SupabaseService: ObservableObject {
         } catch {
             return nil
         }
+    }
+
+    // MARK: - Profile
+
+    /// Saves `first_name`, `last_name`, and a combined `display_name` on `profiles`.
+    func upsertProfile(firstName: String, lastName: String) async throws {
+        guard let client else { throw NSError(domain: "Supabase", code: -1, userInfo: [NSLocalizedDescriptionKey: "Not configured"]) }
+        guard let uid = await currentUserId() else { return }
+        let f = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let l = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !f.isEmpty || !l.isEmpty else { return }
+
+        let displayName: String
+        if !f.isEmpty, !l.isEmpty {
+            displayName = "\(f) \(l)"
+        } else if !f.isEmpty {
+            displayName = f
+        } else {
+            displayName = l
+        }
+
+        struct ProfileRow: Codable {
+            let id: UUID
+            let displayName: String
+            let firstName: String
+            let lastName: String
+
+            enum CodingKeys: String, CodingKey {
+                case id
+                case displayName = "display_name"
+                case firstName = "first_name"
+                case lastName = "last_name"
+            }
+        }
+
+        let row = ProfileRow(id: uid, displayName: displayName, firstName: f, lastName: l)
+        try await client
+            .from("profiles")
+            .upsert(row)
+            .execute()
+    }
+
+    func fetchDisplayName() async throws -> String? {
+        guard let client else { return nil }
+        guard let uid = await currentUserId() else { return nil }
+
+        struct ProfileRow: Codable {
+            let displayName: String
+            let firstName: String?
+            let lastName: String?
+
+            enum CodingKeys: String, CodingKey {
+                case displayName = "display_name"
+                case firstName = "first_name"
+                case lastName = "last_name"
+            }
+        }
+
+        let rows: [ProfileRow] = try await client
+            .from("profiles")
+            .select()
+            .eq("id", value: uid.uuidString)
+            .limit(1)
+            .execute()
+            .value
+
+        guard let row = rows.first else { return nil }
+        let first = (row.firstName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let last = (row.lastName ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if !first.isEmpty && !last.isEmpty {
+            return "\(first) \(last)"
+        }
+        if !first.isEmpty {
+            return first
+        }
+        if !last.isEmpty {
+            return last
+        }
+        return row.displayName
     }
 
     // MARK: - Rated cities

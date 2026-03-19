@@ -1,0 +1,239 @@
+{
+  "" : {
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Sonder-primary.dia",
+    "emit-module-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Sonder-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Sonder-primary-emit-module.dia",
+    "pch" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Sonder-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Sonder-primary.swiftdeps"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/AppStore.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AppStore.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AppStore.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AppStore.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AppStore.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AppStore.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AppStore.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AppStore.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AppStore~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Auth/AuthScreen.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthScreen.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthScreen.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthScreen.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthScreen.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthScreen.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthScreen.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthScreen.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthScreen~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Auth/AuthStore.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthStore.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthStore.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthStore.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthStore.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthStore.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthStore.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthStore.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AuthStore~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Config.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Config.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Config.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Config.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Config.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Config.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Config.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Config.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Config~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Data/Attractions.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Attractions.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Attractions.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Attractions.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Attractions.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Attractions.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Attractions.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Attractions.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Attractions~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Data/MockFeed.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/MockFeed.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/MockFeed.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/MockFeed.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/MockFeed.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/MockFeed.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/MockFeed.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/MockFeed.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/MockFeed~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Models/City.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/City.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/City.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/City.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/City.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/City.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/City.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/City.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/City~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Models/TravelProfile.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelProfile.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelProfile.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelProfile.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelProfile.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelProfile.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelProfile.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelProfile.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelProfile~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Services/ClaudeService.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ClaudeService.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ClaudeService.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ClaudeService.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ClaudeService.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ClaudeService.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ClaudeService.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ClaudeService.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ClaudeService~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Services/SupabaseService.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SupabaseService.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SupabaseService.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SupabaseService.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SupabaseService.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SupabaseService.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SupabaseService.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SupabaseService.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SupabaseService~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/SonderApp.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SonderApp.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SonderApp.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SonderApp.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SonderApp.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SonderApp.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SonderApp.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SonderApp.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/SonderApp~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Theme/Theme.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Theme.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Theme.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Theme.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Theme.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Theme.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Theme.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Theme.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/Theme~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/ContentRootView.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ContentRootView.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ContentRootView.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ContentRootView.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ContentRootView.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ContentRootView.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ContentRootView.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ContentRootView.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ContentRootView~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/Shared/AddCitySheet.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AddCitySheet.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AddCitySheet.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AddCitySheet.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AddCitySheet.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AddCitySheet.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AddCitySheet.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AddCitySheet.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AddCitySheet~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/Shared/AttractionRaterView.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AttractionRaterView.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AttractionRaterView.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AttractionRaterView.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AttractionRaterView.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AttractionRaterView.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AttractionRaterView.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AttractionRaterView.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/AttractionRaterView~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/Shared/BottomTabBar.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/BottomTabBar.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/BottomTabBar.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/BottomTabBar.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/BottomTabBar.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/BottomTabBar.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/BottomTabBar.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/BottomTabBar.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/BottomTabBar~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/Shared/CityCardView.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/CityCardView.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/CityCardView.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/CityCardView.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/CityCardView.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/CityCardView.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/CityCardView.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/CityCardView.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/CityCardView~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/Shared/FollowStatsView.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FollowStatsView.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FollowStatsView.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FollowStatsView.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FollowStatsView.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FollowStatsView.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FollowStatsView.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FollowStatsView.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FollowStatsView~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/Shared/FutureRecommendationsView.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FutureRecommendationsView.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FutureRecommendationsView.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FutureRecommendationsView.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FutureRecommendationsView.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FutureRecommendationsView.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FutureRecommendationsView.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FutureRecommendationsView.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FutureRecommendationsView~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/Tabs/FeedView.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FeedView.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FeedView.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FeedView.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FeedView.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FeedView.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FeedView.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FeedView.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/FeedView~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/Tabs/ListsView.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ListsView.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ListsView.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ListsView.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ListsView.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ListsView.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ListsView.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ListsView.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ListsView~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/Tabs/ProfileView.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ProfileView.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ProfileView.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ProfileView.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ProfileView.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ProfileView.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ProfileView.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ProfileView.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/ProfileView~partial.swiftmodule"
+  },
+  "/Users/sourishdas/Desktop/carpe-diem/Sonder/Views/Tabs/TravelMapView.swift" : {
+    "const-values" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelMapView.swiftconstvalues",
+    "dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelMapView.d",
+    "diagnostics" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelMapView.dia",
+    "index-unit-output-path" : "/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelMapView.o",
+    "llvm-bc" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelMapView.bc",
+    "object" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelMapView.o",
+    "swift-dependencies" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelMapView.swiftdeps",
+    "swiftmodule" : "/Users/sourishdas/Desktop/carpe-diem/build/Sonder.build/Debug-iphoneos/Sonder.build/Objects-normal/arm64/TravelMapView~partial.swiftmodule"
+  }
+}
