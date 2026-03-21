@@ -34,7 +34,7 @@ create table if not exists public.rated_cities (
   would_recommend_if text not null default '',
   score_breakdown jsonb,
   top_attraction_name text,
-  ratings jsonb not null default '[]',  -- [{ "attractionId": "uuid", "score": 5 }]
+  ratings jsonb not null default '[]',  -- [{ "attraction_id","name","category","sentiment","rank" }] (legacy: score 1–5)
   created_at timestamptz default now(),
   unique(user_id, city_name, country)
 );

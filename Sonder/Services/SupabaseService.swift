@@ -382,18 +382,29 @@ struct RatedCityRow: Codable {
     }
 
     func toRatedCity() -> RatedCity? {
-        let cityData = Attractions.allCities.first { $0.city == cityName && $0.country == country }
-            ?? CityData(
-                city: cityName,
-                country: country,
-                flag: flag,
-                photoURL: photoUrl,
-                attractions: []
-            )
-        let attractionRatings = ratings.compactMap { dto -> AttractionRating? in
-            guard let aid = UUID(uuidString: dto.attractionId) else { return nil }
-            return AttractionRating(attractionId: aid, score: dto.score)
+        let template = Attractions.allCities.first { $0.city == cityName && $0.country == country }
+        let fromDTOs: [Attraction] = ratings.compactMap { dto in
+            guard let aid = UUID(uuidString: dto.attractionId),
+                  let name = dto.name?.trimmingCharacters(in: .whitespacesAndNewlines), !name.isEmpty,
+                  let catRaw = dto.category,
+                  let cat = AttractionCategory(rawValue: catRaw) else { return nil }
+            return Attraction(id: aid, name: name, category: cat)
         }
+        let mergedAttractions: [Attraction] = {
+            var byId = [UUID: Attraction]()
+            for a in template?.attractions ?? [] { byId[a.id] = a }
+            for a in fromDTOs { byId[a.id] = a }
+            return Array(byId.values)
+        }()
+        let cityData = CityData(
+            id: template?.id ?? id,
+            city: cityName,
+            country: country,
+            flag: flag.isEmpty ? (template?.flag ?? "") : flag,
+            photoURL: photoUrl.isEmpty ? (template?.photoURL ?? "") : photoUrl,
+            attractions: mergedAttractions
+        )
+        let attractionRatings = ratings.compactMap { $0.toAttractionRating() }
         return RatedCity(
             id: id,
             cityData: cityData,
@@ -421,7 +432,17 @@ struct RatedCityRow: Codable {
             wouldRecommendIf: city.wouldRecommendIf,
             scoreBreakdown: city.scoreBreakdown,
             topAttractionName: city.topAttractionName,
-            ratings: city.ratings.map { AttractionRatingDTO(attractionId: $0.attractionId.uuidString, score: $0.score) },
+            ratings: city.ratings.map { r in
+                let att = city.cityData.attractions.first { $0.id == r.attractionId }
+                return AttractionRatingDTO(
+                    attractionId: r.attractionId.uuidString,
+                    name: att?.name,
+                    category: att?.category.rawValue,
+                    sentiment: r.sentiment.rawValue,
+                    rank: r.rankAmongSimilar,
+                    score: nil
+                )
+            },
             createdAt: nil
         )
     }
@@ -429,11 +450,32 @@ struct RatedCityRow: Codable {
 
 struct AttractionRatingDTO: Codable {
     let attractionId: String
-    let score: Int
+    var name: String?
+    var category: String?
+    var sentiment: String?
+    var rank: Int?
+    /// Legacy 1–5 stars (older app versions).
+    var score: Int?
 
     enum CodingKeys: String, CodingKey {
         case attractionId = "attraction_id"
+        case name
+        case category
+        case sentiment
+        case rank
         case score
+    }
+
+    func toAttractionRating() -> AttractionRating? {
+        guard let aid = UUID(uuidString: attractionId) else { return nil }
+        if let s = sentiment, let v = VisitSentiment(rawValue: s), let rk = rank {
+            return AttractionRating(attractionId: aid, sentiment: v, rankAmongSimilar: rk)
+        }
+        if let sc = score {
+            let v: VisitSentiment = sc >= 4 ? .wouldReturn : (sc >= 3 ? .decent : .waste)
+            return AttractionRating(attractionId: aid, sentiment: v, rankAmongSimilar: 1)
+        }
+        return nil
     }
 }
 

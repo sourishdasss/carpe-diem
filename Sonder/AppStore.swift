@@ -33,7 +33,14 @@ final class AppStore: ObservableObject {
         for city in ratedCities {
             for rating in city.ratings {
                 if let att = city.cityData.attractions.first(where: { $0.id == rating.attractionId }) {
-                    categoryCounts[att.category.rawValue, default: 0] += att.category.weight > 1 ? 2 : 1
+                    let w = att.category.weight > 1 ? 2.0 : 1.0
+                    let boost: Double
+                    switch rating.sentiment {
+                    case .wouldReturn: boost = 3
+                    case .decent: boost = 2
+                    case .waste: boost = 0.5
+                    }
+                    categoryCounts[att.category.rawValue, default: 0] += Int((w * boost).rounded())
                 }
             }
         }
@@ -133,33 +140,39 @@ final class AppStore: ObservableObject {
 
     func submitCityRatings(
         cityData: CityData,
-        ratings: [UUID: Int]
+        visitEntries: [CityVisitAttractionEntry]
     ) async {
         isLoadingCityScore = true
         errorMessage = nil
         defer { isLoadingCityScore = false }
 
-        let ratedAttractions: [(attraction: Attraction, score: Int)] = cityData.attractions.compactMap { att in
-            guard let score = ratings[att.id] else { return nil }
-            return (att, score)
-        }
-        guard !ratedAttractions.isEmpty else {
-            errorMessage = "Rate at least one attraction"
+        guard !visitEntries.isEmpty else {
+            errorMessage = "Add at least one place you visited."
             return
         }
 
+        let priorSnapshot = ratedCities
+
         if Config.aiEnabled, let service = aiService {
             do {
-                let lines: [(attractionName: String, category: String, score: Int)] = ratedAttractions.map {
-                    (attractionName: $0.attraction.name, category: $0.attraction.category.rawValue, score: $0.score)
+                let lines = visitEntries.map {
+                    (
+                        attractionName: $0.attraction.name,
+                        category: $0.attraction.category.rawValue,
+                        sentiment: $0.sentiment.rawValue,
+                        rankInCategory: $0.rankInCategory,
+                        categoryCount: $0.categoryCount
+                    )
                 }
                 let response = try await service.generateCityScore(
                     city: cityData.city,
                     country: cityData.country,
-                    ratings: lines
+                    visitLines: lines
                 )
-                let attractionRatings = ratings.map { AttractionRating(attractionId: $0.key, score: $0.value) }
-                let topAttractionName = ratedAttractions.max(by: { $0.score < $1.score })?.attraction.name
+                let attractionRatings = visitEntries.map {
+                    AttractionRating(attractionId: $0.attraction.id, sentiment: $0.sentiment, rankAmongSimilar: $0.rankInCategory)
+                }
+                let topAttractionName = bestVisitEntry(in: visitEntries)?.attraction.name
                 let rated = RatedCity(
                     cityData: cityData,
                     cumulativeScore: response.cumulativeScore,
@@ -177,9 +190,10 @@ final class AppStore: ObservableObject {
             return
         }
 
-        // Local fallback (AI disabled): deterministic scoring + summary.
-        let computed = computeCityScore(cityData: cityData, ratedAttractions: ratedAttractions)
-        let attractionRatings = ratings.map { AttractionRating(attractionId: $0.key, score: $0.value) }
+        let computed = computeCityScore(cityData: cityData, visitEntries: visitEntries, priorRatedCities: priorSnapshot)
+        let attractionRatings = visitEntries.map {
+            AttractionRating(attractionId: $0.attraction.id, sentiment: $0.sentiment, rankAmongSimilar: $0.rankInCategory)
+        }
         let rated = RatedCity(
             cityData: cityData,
             cumulativeScore: computed.cumulativeScore,
@@ -191,6 +205,16 @@ final class AppStore: ObservableObject {
             topAttractionName: computed.topAttractionName
         )
         addRatedCity(rated)
+    }
+
+    private func bestVisitEntry(in entries: [CityVisitAttractionEntry]) -> CityVisitAttractionEntry? {
+        entries.max { a, b in
+            let sa = AttractionRating(attractionId: a.attraction.id, sentiment: a.sentiment, rankAmongSimilar: a.rankInCategory)
+                .effectiveScore10(categoryCount: a.categoryCount)
+            let sb = AttractionRating(attractionId: b.attraction.id, sentiment: b.sentiment, rankAmongSimilar: b.rankInCategory)
+                .effectiveScore10(categoryCount: b.categoryCount)
+            return sa < sb
+        }
     }
 
     func refreshTravelProfile() async {
@@ -248,25 +272,27 @@ final class AppStore: ObservableObject {
 
     private func computeCityScore(
         cityData: CityData,
-        ratedAttractions: [(attraction: Attraction, score: Int)]
+        visitEntries: [CityVisitAttractionEntry],
+        priorRatedCities: [RatedCity]
     ) -> ComputedCityScore {
-        var byCategoryScores: [AttractionCategory: [Int]] = [:]
+        var byCategoryValues: [AttractionCategory: [Double]] = [:]
         var weightedSum = 0.0
         var weightSum = 0.0
 
-        for item in ratedAttractions {
-            byCategoryScores[item.attraction.category, default: []].append(item.score)
-            weightedSum += Double(item.score) * item.attraction.category.weight
-            weightSum += item.attraction.category.weight
+        for e in visitEntries {
+            let v = AttractionRating(attractionId: e.attraction.id, sentiment: e.sentiment, rankAmongSimilar: e.rankInCategory)
+                .effectiveScore10(categoryCount: e.categoryCount)
+            byCategoryValues[e.attraction.category, default: []].append(v)
+            weightedSum += v * e.attraction.category.weight
+            weightSum += e.attraction.category.weight
         }
 
-        let weightedAvg1to5 = weightSum > 0 ? (weightedSum / weightSum) : 0
-        let cumulativeScore10 = max(0, min(10, (weightedAvg1to5 / 5.0) * 10.0))
+        let cumulativeScore10 = weightSum > 0 ? max(0, min(10, weightedSum / weightSum)) : 0
 
         var scoreBreakdown: [String: Double] = [:]
-        for (cat, scores) in byCategoryScores {
-            let avg = Double(scores.reduce(0, +)) / Double(max(1, scores.count))
-            scoreBreakdown[cat.rawValue] = max(0, min(10, (avg / 5.0) * 10.0))
+        for (cat, vals) in byCategoryValues {
+            let avg = vals.reduce(0, +) / Double(max(1, vals.count))
+            scoreBreakdown[cat.rawValue] = max(0, min(10, avg))
         }
 
         let sortedCats = scoreBreakdown.sorted { $0.value > $1.value }
@@ -274,15 +300,17 @@ final class AppStore: ObservableObject {
         let top2Key = sortedCats.dropFirst().first?.key
         let bottomKey = sortedCats.last?.key
 
-        let topAttractionName = ratedAttractions.max(by: { $0.score < $1.score })?.attraction.name
+        let topAttractionName = bestVisitEntry(in: visitEntries)?.attraction.name
 
         let topA = top1Key ?? "your favorite vibes"
         let topB = top2Key ?? "the city's energy"
         let low = bottomKey ?? "less matching categories"
 
-        let summary = "In \(cityData.city), your strongest pull was \(topA) and \(topB). You clicked the most with the parts that feel natural to you, while \(low) landed a bit differently."
-        let highlight = "Your strongest signal was \(topA)."
-        let wouldRecommendIf = "You'll probably love \(cityData.city) if you're into \(topA) and \(topB)."
+        let comparison = comparisonBlurb(visitEntries: visitEntries, prior: priorRatedCities, city: cityData.city)
+
+        let summary = "In \(cityData.city), \(comparison) Your strongest category signals were \(topA) and \(topB); \(low) felt relatively softer this trip."
+        let highlight = "Top pick: \(topAttractionName ?? "your highest-ranked stop"). Strongest category: \(topA)."
+        let wouldRecommendIf = "You’ll likely enjoy \(cityData.city) if you care about \(topA) and \(topB) — that’s where your visit lined up best."
 
         return ComputedCityScore(
             cumulativeScore: cumulativeScore10,
@@ -292,6 +320,29 @@ final class AppStore: ObservableObject {
             wouldRecommendIf: wouldRecommendIf,
             topAttractionName: topAttractionName
         )
+    }
+
+    private func comparisonBlurb(visitEntries: [CityVisitAttractionEntry], prior: [RatedCity], city: String) -> String {
+        guard let anchor = visitEntries.max(by: { a, b in
+            let sa = a.sentiment.sortTier * 10 - a.rankInCategory
+            let sb = b.sentiment.sortTier * 10 - b.rankInCategory
+            return sa > sb
+        }) else {
+            return "you logged how each stop felt and ranked similar places against each other."
+        }
+        let cat = anchor.attraction.category
+        let priorNames: [String] = prior.flatMap { rc in
+            rc.ratings.compactMap { r -> String? in
+                guard let a = rc.cityData.attractions.first(where: { $0.id == r.attractionId }),
+                      a.category == cat else { return nil }
+                return "\(a.name) (\(rc.cityData.city))"
+            }
+        }
+        if priorNames.isEmpty {
+            return "you ranked \(cat.rawValue.lowercased()) spots within this trip — best first among similar places."
+        }
+        let sample = priorNames.prefix(2).joined(separator: ", ")
+        return "you compared new \(cat.rawValue.lowercased()) stops to others you’ve logged (like \(sample)) and ordered what felt strongest in \(city)."
     }
 
     private func computeTravelProfile(ratedCities: [RatedCity]) -> TravelProfile {

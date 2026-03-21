@@ -45,13 +45,13 @@ struct CityCardView: View {
                         .foregroundStyle(.white.opacity(0.75))
                     Text("·")
                         .foregroundStyle(.white.opacity(0.5))
-                    Text("\(city.ratings.count) rated")
+                    Text("\(city.ratings.count) places")
                         .font(.georgia(13))
                         .foregroundStyle(.white.opacity(0.75))
                 }
 
                 if let top = city.topAttractionName, !top.isEmpty {
-                    Label(top, systemImage: "star.fill")
+                    Label(top, systemImage: "crown.fill")
                         .font(.georgia(12))
                         .foregroundStyle(.white.opacity(0.7))
                         .labelStyle(.titleAndIcon)

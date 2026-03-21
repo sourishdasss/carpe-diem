@@ -10,15 +10,56 @@ struct CityMapPin: Identifiable {
     let coordinate: CLLocationCoordinate2D
 }
 
-// MARK: - World map default
+// MARK: - Globe camera (space-scale, like Apple Maps zoomed out)
 
 private extension MapCameraPosition {
-    /// Wide view so Places opens on a world-scale map (pins still visible; user can zoom).
-    static var sonderWorld: MapCameraPosition {
-        .region(MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: 20, longitude: 10),
-            span: MKCoordinateSpan(latitudeDelta: 120, longitudeDelta: 120)
-        ))
+    /// High-altitude 3D globe; user can pinch/spin like Apple Maps.
+    static var sonderGlobe: MapCameraPosition {
+        .camera(
+            MapCamera(
+                centerCoordinate: CLLocationCoordinate2D(latitude: 18, longitude: 12),
+                distance: 42_000_000,
+                heading: 0,
+                pitch: 32
+            )
+        )
+    }
+}
+
+// MARK: - Starfield (behind the map)
+
+private struct StarfieldBackground: View {
+    /// Deterministic star positions so the field doesn’t flicker on redraw.
+    private static let stars: [(nx: CGFloat, ny: CGFloat, radius: CGFloat, opacity: Double)] = {
+        var out: [(nx: CGFloat, ny: CGFloat, radius: CGFloat, opacity: Double)] = []
+        var state: UInt64 = 2_468_013_579
+        for _ in 0..<240 {
+            state = state &* 1_103_515_245 &+ 12_345
+            let nx = CGFloat(state % 1_000) / 1000
+            state = state &* 1_103_515_245 &+ 12_345
+            let ny = CGFloat(state % 1_000) / 1000
+            state = state &* 1_103_515_245 &+ 12_345
+            let r = 0.35 + CGFloat(state % 280) / 280 * 1.65
+            state = state &* 1_103_515_245 &+ 12_345
+            let o = 0.18 + Double(state % 650) / 650 * 0.82
+            out.append((nx: nx, ny: ny, radius: r, opacity: o))
+        }
+        return out
+    }()
+
+    var body: some View {
+        Canvas { context, size in
+            let w = max(size.width, 1)
+            let h = max(size.height, 1)
+            for s in Self.stars {
+                let x = s.nx * w
+                let y = s.ny * h
+                let rect = CGRect(x: x, y: y, width: s.radius, height: s.radius)
+                let path = Path(ellipseIn: rect)
+                context.fill(path, with: .color(.white.opacity(s.opacity)))
+            }
+        }
+        .background(Color.black)
     }
 }
 
@@ -28,7 +69,7 @@ struct TravelMapView: View {
     @EnvironmentObject var store: AppStore
     @State private var selectedPin: CityMapPin?
     @State private var showAddCity = false
-    @State private var cameraPosition: MapCameraPosition = .sonderWorld
+    @State private var cameraPosition: MapCameraPosition = .sonderGlobe
 
     @State private var pins: [CityMapPin] = []
     @State private var coordinateCache: [String: CLLocationCoordinate2D] = [:]
@@ -36,6 +77,8 @@ struct TravelMapView: View {
 
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
+            StarfieldBackground()
+                .ignoresSafeArea()
             mapLayer
             statsOverlay
             addButton
@@ -48,8 +91,8 @@ struct TravelMapView: View {
             AddCityPickerView(isPresented: $showAddCity)
         }
         .onAppear {
-            // Tab switch recreates this view — always start from a world-scale map.
-            cameraPosition = .sonderWorld
+            // Tab switch recreates this view — always start from the 3D globe.
+            cameraPosition = .sonderGlobe
             updatePinsFromRatedCities()
         }
         .onChange(of: store.ratedCities.count) { _, _ in
@@ -72,7 +115,8 @@ struct TravelMapView: View {
                 }
             }
         }
-        .mapStyle(.standard(elevation: .realistic, pointsOfInterest: .excludingAll))
+        // Satellite + realistic elevation → spherical globe with 3D terrain when you zoom in.
+        .mapStyle(.imagery(elevation: .realistic))
     }
 
     // MARK: - Stats Overlay
@@ -81,16 +125,17 @@ struct TravelMapView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text("\(pins.count) \(pins.count == 1 ? "place" : "places")")
                 .font(.georgiaBold(16))
-                .foregroundStyle(Color.sonderTextPrimary)
+                .foregroundStyle(.white)
             Text("\(uniqueCountries) \(uniqueCountries == 1 ? "country" : "countries")")
                 .font(.georgia(13))
-                .foregroundStyle(Color.sonderTextSecond)
+                .foregroundStyle(.white.opacity(0.88))
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 10)
-        .background(.ultraThinMaterial)
+        .background(.ultraThinMaterial.opacity(0.55))
+        .environment(\.colorScheme, .dark)
         .clipShape(RoundedRectangle(cornerRadius: 14))
-        .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 2)
+        .shadow(color: .black.opacity(0.35), radius: 8, x: 0, y: 2)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(.top, 60)
         .padding(.leading, 16)
@@ -289,7 +334,7 @@ struct CityPinDetailSheet: View {
                 }
 
                 if let highlight = pin.city.topAttractionName, !highlight.isEmpty {
-                    Label(highlight, systemImage: "star.fill")
+                    Label(highlight, systemImage: "crown.fill")
                         .font(.georgia(13))
                         .foregroundStyle(Color.sonderAccent)
                 }

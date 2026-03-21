@@ -45,6 +45,66 @@ struct Attraction: Identifiable, Hashable {
     }
 }
 
+// MARK: - Visit sentiment (replaces 1–5 stars)
+
+enum VisitSentiment: String, Codable, CaseIterable, Hashable {
+    case wouldReturn = "would_return"
+    case decent = "decent"
+    case waste = "waste"
+
+    var shortLabel: String {
+        switch self {
+        case .wouldReturn: return "Would return"
+        case .decent: return "Decent"
+        case .waste: return "Waste of time"
+        }
+    }
+
+    var detailLine: String {
+        switch self {
+        case .wouldReturn: return "Loved it — you’d go out of your way to do this again."
+        case .decent: return "Fine, not a miss — but not the main reason you’d come back."
+        case .waste: return "Wouldn’t repeat — felt like a poor use of time or money."
+        }
+    }
+
+    /// Base signal on 0–10 before within-category rank adjustment.
+    var baseScore10: Double {
+        switch self {
+        case .wouldReturn: return 8.2
+        case .decent: return 5.4
+        case .waste: return 2.1
+        }
+    }
+
+    var sortTier: Int {
+        switch self {
+        case .wouldReturn: return 0
+        case .decent: return 1
+        case .waste: return 2
+        }
+    }
+
+    /// Derive sentiment from rank position in a category (Beli-style pure ranking).
+    /// rank is 1-based (1 = best). top ~33% → wouldReturn, middle → decent, bottom → waste.
+    static func fromRankPosition(rank: Int, total: Int) -> VisitSentiment {
+        guard total > 2 else { return rank == 1 ? .wouldReturn : .decent }
+        let fraction = Double(rank - 1) / Double(total - 1)
+        if fraction <= 0.33 { return .wouldReturn }
+        if fraction <= 0.7 { return .decent }
+        return .waste
+    }
+}
+
+/// One attraction the user is logging for a city visit (before submit).
+struct CityVisitAttractionEntry: Hashable {
+    let attraction: Attraction
+    let sentiment: VisitSentiment
+    /// 1 = best in this category for this visit (drag to reorder).
+    let rankInCategory: Int
+    let categoryCount: Int
+}
+
 struct CityData: Identifiable, Hashable {
     let id: UUID
     let city: String
@@ -66,15 +126,28 @@ struct CityData: Identifiable, Hashable {
     static func == (lhs: CityData, rhs: CityData) -> Bool { lhs.id == rhs.id }
 }
 
-struct AttractionRating: Identifiable {
+struct AttractionRating: Identifiable, Hashable {
     let id: UUID
     let attractionId: UUID
-    let score: Int // 1-5
+    let sentiment: VisitSentiment
+    /// Best = 1 within the same category for that city visit; used with other trips for comparison copy.
+    let rankAmongSimilar: Int
 
-    init(id: UUID = UUID(), attractionId: UUID, score: Int) {
+    init(id: UUID = UUID(), attractionId: UUID, sentiment: VisitSentiment, rankAmongSimilar: Int) {
         self.id = id
         self.attractionId = attractionId
-        self.score = min(5, max(1, score))
+        self.sentiment = sentiment
+        self.rankAmongSimilar = max(1, rankAmongSimilar)
+    }
+
+    /// Numeric strength for aggregates (0–10), blending sentiment + how you ordered vs siblings in the same category.
+    func effectiveScore10(categoryCount: Int) -> Double {
+        let base = sentiment.baseScore10
+        guard categoryCount > 1 else { return min(10, max(0, base)) }
+        let spread = 1.35
+        let norm = Double(categoryCount - rankAmongSimilar) / Double(max(1, categoryCount - 1))
+        let bump = norm * spread * (sentiment == .waste ? 0.35 : 1.0)
+        return min(10, max(0, base + bump))
     }
 }
 

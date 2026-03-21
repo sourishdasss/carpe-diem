@@ -43,6 +43,7 @@ struct ListsView: View {
             }
             .sheet(isPresented: $showAddCity) {
                 AddCityPickerView(isPresented: $showAddCity)
+                    .presentationDetents([.medium, .large])
             }
         }
     }
@@ -132,10 +133,10 @@ struct ListsView: View {
 
     private func categoryRow(_ cat: AttractionCategory) -> some View {
         let ratingsForCat = store.ratedCities.flatMap { city in
-            city.ratings.compactMap { r -> (String, Int)? in
+            city.ratings.compactMap { r -> (String, VisitSentiment, Int)? in
                 guard let att = city.cityData.attractions.first(where: { $0.id == r.attractionId }),
                       att.category == cat else { return nil }
-                return (att.name, r.score)
+                return (att.name, r.sentiment, r.rankAmongSimilar)
             }
         }
 
@@ -154,23 +155,25 @@ struct ListsView: View {
             }
 
             if ratingsForCat.isEmpty {
-                Text("No ratings yet in this category.")
+                Text("Nothing logged in this category yet.")
                     .font(.georgia(13))
                     .foregroundStyle(Color.sonderTextSecond)
             } else {
-                ForEach(ratingsForCat.prefix(3), id: \.0) { name, score in
-                    HStack {
-                        Text(name)
-                            .font(.georgia(14))
-                            .foregroundStyle(Color.sonderTextPrimary)
-                        Spacer()
-                        HStack(spacing: 2) {
-                            ForEach(1...5, id: \.self) { i in
-                                Image(systemName: i <= score ? "star.fill" : "star")
-                                    .font(.system(size: 10))
-                                    .foregroundStyle(i <= score ? Color.sonderAccent : Color.sonderDivider)
-                            }
+                ForEach(Array(ratingsForCat.prefix(8).enumerated()), id: \.offset) { _, row in
+                    let (name, sentiment, rank) = row
+                    HStack(alignment: .firstTextBaseline) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(name)
+                                .font(.georgia(14))
+                                .foregroundStyle(Color.sonderTextPrimary)
+                            Text(sentiment.shortLabel)
+                                .font(.georgia(11))
+                                .foregroundStyle(Color.sonderTextSecond)
                         }
+                        Spacer()
+                        Text("#\(rank)")
+                            .font(.georgiaBold(12))
+                            .foregroundStyle(Color.sonderAccent)
                     }
                 }
             }
@@ -327,7 +330,7 @@ struct AddCityPickerView: View {
                         .foregroundStyle(Color.sonderAccent)
                 }
             }
-            .sheet(item: $selectedCity, onDismiss: {
+            .fullScreenCover(item: $selectedCity, onDismiss: {
                 citySearch.reset()
                 manualCity = ""
                 fullSearchResults = []

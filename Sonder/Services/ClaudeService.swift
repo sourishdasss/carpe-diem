@@ -64,11 +64,13 @@ final class ClaudeService {
     func generateCityScore(
         city: String,
         country: String,
-        ratings: [(attractionName: String, category: String, score: Int)]
+        visitLines: [(attractionName: String, category: String, sentiment: String, rankInCategory: Int, categoryCount: Int)]
     ) async throws -> CityScoreResponse {
-        let lines = ratings.map { "\($0.category): \($0.attractionName) — \($0.score)/5 stars" }
+        let lines = visitLines.map {
+            "\($0.category): \($0.attractionName) — sentiment \($0.sentiment) (would_return / decent / waste), rank \($0.rankInCategory) of \($0.categoryCount) within that category on this trip (1 = best)"
+        }
         let userText = """
-        The user visited \(city), \(country) and rated the following attractions:
+        The user visited \(city), \(country) and logged these places (no star ratings — sentiment + within-category rank vs similar spots):
         \(lines.joined(separator: "\n"))
 
         Return JSON only with keys:
@@ -80,7 +82,7 @@ final class ClaudeService {
         """
 
         let systemPrompt = """
-        You are a travel analyst. Given a user's attraction ratings for a city, calculate a weighted cumulative score (0–10) and write a personalized city summary. Respond with JSON only, no markdown or commentary.
+        You are a travel analyst. The user did not use 1–5 stars: they chose whether they'd return, thought it was decent, or a waste, then ranked similar places within each category. Infer a fair 0–10 city score and category breakdown from that. Respond with JSON only, no markdown or commentary.
         """
 
         let jsonData = try await callGemini(systemPrompt: systemPrompt, userText: userText)

@@ -13,7 +13,6 @@ struct ProfileView: View {
                 ScrollView {
                     VStack(spacing: 28) {
                         avatarHeader
-                        followStats
                         personalityCard
                         statsRow
                         topCitiesSection
@@ -77,12 +76,6 @@ struct ProfileView: View {
 
             Spacer()
         }
-    }
-
-    // MARK: - Follow Stats
-
-    private var followStats: some View {
-        FollowStatsView(followerCount: 47, followingCount: 31)
     }
 
     // MARK: - Personality Card
