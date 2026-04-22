@@ -171,7 +171,7 @@ let tokyo = CityData(
     city: "Tokyo",
     country: "Japan",
     flag: "🇯🇵",
-    photoURL: "https://source.unsplash.com/featured/?tokyo,travel",
+    photoURL: "https://picsum.photos/seed/tokyo-travel/800/600",
     attractions: [
         Attraction(name: "Senso-ji Temple", category: .culture, weight: 1.0),
         Attraction(name: "Shibuya Crossing", category: .landmark, weight: 0.8),
@@ -245,5 +245,5 @@ Sonder/
 - 3-hour hackathon — prioritize the demo flow above, skip edge cases
 - No auth, no database — all state in `AppStore` (`@StateObject`), mock the feed with static data
 - Single Claude API call per city rating submission
-- Use Unsplash source URLs for photos (no API key needed): `https://source.unsplash.com/featured/?tokyo,travel`
+- Use `picsum.photos/seed/<keyword>/<W>/<H>` for photos (no API key needed): `https://picsum.photos/seed/tokyo-travel/800/600`. Note: `source.unsplash.com/featured` and `source.unsplash.com/random` were deprecated by Unsplash in mid-2024 and now return HTTP 503. If topic-matched real Unsplash photos matter, use the [tteg HTTP API](https://github.com/kiluazen/tteg) (no key).
 - Target iPhone 15 Pro simulator for the demo
